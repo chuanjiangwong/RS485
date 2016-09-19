@@ -1,0 +1,14 @@
+#Tha applicaton Kconfig file
+#
+#
+#
+#rs485d
+
+menu "rs485d"
+source app/rs485d/Kconfig
+endmenu
+
+
+menu "rs485c"
+source app/rs485c/Kconfig
+endmenu

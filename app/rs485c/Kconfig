@@ -1,0 +1,24 @@
+#This Config for rs485 client
+
+choice
+    prompt "Protocol test"
+    default RS485C_PROTOCOL_GENERAL
+
+config RS485C_PROTOCOL_BACNET
+    bool "BACnet"
+    help
+        The client test type used BACnet
+
+config RS485C_PROTOCOL_GENERAL
+    bool "General"
+    help
+        The client test type used General
+
+config RS485C_PROTOCOL_MODBUS
+    bool "Modbus"
+    help
+        The client test type used Modbus
+
+endchoice
+
+

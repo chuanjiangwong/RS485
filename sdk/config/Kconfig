@@ -1,0 +1,62 @@
+
+mainmenu "Project build Configuration"
+
+###########################################
+#The application
+menu "App"
+source app/Kconfig
+endmenu
+
+
+############################################
+#The sdk modules
+menu "Modules"
+endmenu
+
+
+############################################
+#The miscellaneous
+menu "Miscellaneous"
+endmenu
+
+
+###########################################
+#The Debuging
+menu "Development and Debugging"
+
+config ENABLE_ERROR_LOGS
+       bool
+       prompt "Enable error logs"
+       default y
+       help
+		If you enable this, error messages
+		will be printed in case of error
+		conditions. This will increase the
+		size of the image. It is strongly
+		recommended to keep it enabled
+		during development, to quickly
+		localize problems.
+
+config ENABLE_WARNING_LOGS
+       bool
+       prompt "Enable warning logs"
+       default y
+       help
+		If you enable this, error messages
+		will be printed in case of error
+		conditions. This will increase the
+		size of the image. It is strongly
+		recommended to keep it enabled
+		during development, to quickly
+		localize problems.
+
+config DEBUG_BUILD
+       bool
+       prompt  "Debug build"
+       default y
+       help
+		If you enable this the debug options will be
+      		 enabled. Asserts will be also be enabled.
+      		 
+endmenu
+

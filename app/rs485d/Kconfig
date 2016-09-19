@@ -1,0 +1,77 @@
+#######################################
+#The rs485d config
+
+#######################################
+#The debug option
+choice
+    prompt "App Debug"
+    default APP_DEBUG_TO_LINUX_SYSLOG
+
+config APP_DEBUG_DISABLE
+    bool "App debug disable"
+    help
+        Havn't used Debug
+
+config APP_DEBUG_TO_LINUX_SYSLOG
+    bool "App debug to syslog"
+    help
+        write log message to syslog, you can used 'cat /var/log/messages'
+
+config APP_DEBUG_TO_TERMINAL
+    bool "App debug to terminal"
+    help
+        write log message to terminal.
+
+endchoice
+
+######################################
+#The item config
+choice
+    prompt "Item config type"
+    default NEW_ITEM_CONFIG
+
+config OLD_ITEM_CONFIG
+    bool "Old item config"
+    help
+        used the old item config by item, for example: default, daikin
+
+config NEW_ITEM_CONFIG
+    bool "New item config"
+    help
+        used the item config by KNX ETS
+
+endchoice
+
+
+choice
+    prompt "Item"
+    default OLD_ITME_CONFIG_DEFAULT
+    depends on OLD_ITEM_CONFIG
+
+config OLD_ITEM_CONFIG_DEFAULT
+    bool "Default"
+    help
+        The old item config default
+
+config OLD_ITEM_CONFIG_AIR_CONDITION_YORK_KELONG
+    bool "Air: York Kelong"
+    help
+        The York kelong air conditon, by BACnet protocol
+
+config OLD_ITEM_CONFIG_AIR_CONDITION_DAIKIN_DTA116A621
+    bool "Air: DAIKIN DTA116A621"
+    help
+        The DaiKin air condition adapter, by modbus protocol
+
+config OLD_ITEM_CONFIG_AIR_CONDITION_HITACHI_VRV_MANAGER
+    bool "Air: Hitachi VRV Manager"
+    help
+        The Hitachi VRV Manager adapter, by modbus protocol
+
+config OLD_ITEM_CONFIG_AIR_CONDITION_YORK_JOHNSON
+    bool "Air: York Johnson control"
+    help
+        The York Johnson control air condition adapter, by modbus protocol
+
+endchoice
+
