@@ -270,7 +270,7 @@ define create_bin
   clean: $(1).app.clean
   $(1).app.clean:
 	@echo " [clean] $(1)"
-	$$(AT)$(t_rm) -f $($(1)-output-dir-y)/$(1) $($(1)-output-dir-y)/$(1).map $$($(1)-objs-y) $$($(1)-objs-y:.o=.d)  $$($(1)-objs-y:.o=.o.cmd) $($(1)-output-dir-y)/$(1).axf.cmd
+	$$(AT)$(t_rm) -f $($(1)-output-dir-y)/$(1) $($(1)-output-dir-y)/$(1).map $$($(1)-objs-y) $$($(1)-objs-y:.o=.d)  $$($(1)-objs-y:.o=.o.cmd) $($(1)-output-dir-y)/$(1).cmd
 endef
 
 $(foreach p,$(b-exec-y), $(eval $(call create_bin,$(p))))
