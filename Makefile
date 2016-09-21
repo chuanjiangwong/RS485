@@ -36,6 +36,9 @@ else
 endif
 
 
+###########################################
+#sdk subdir
+subdir-y += sdk/module
 
 
 #include build/hapsdk_rules.mk

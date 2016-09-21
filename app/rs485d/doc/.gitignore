@@ -1,2 +1,5 @@
 /html/
 /doxygen_sqlite3.db
+/specification/
+/protocol/
+/.gitignore

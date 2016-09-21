@@ -1,8 +1,8 @@
 
 
 
-PROJECT_MAJOR_NUM := 0
-PROJECT_MINOR_NUM := 9
+PROJECT_MAJOR_NUM := 1
+PROJECT_MINOR_NUM := 0
 PROJECT_VERSION := $(PROJECT_MAJOR_NUM).$(PROJECT_MINOR_NUM)
 
 
@@ -33,3 +33,7 @@ $(prj_name)-cflags-y := -DAPP_PROJECT_VERSION=$(PROJECT_VERSION) #-I$(d)/src
 ifeq ($(BUILD_MODE),debug)
 $(prj_name)-cflags-y += -DAPPCONFIG_DEBUG_ENABLE
 endif
+
+
+#add the lflags
+$(prj_name)-lflags-y += -lc -lgcc -lpthread -lm

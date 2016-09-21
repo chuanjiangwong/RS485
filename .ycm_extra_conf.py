@@ -71,6 +71,8 @@ flags = [
 '-isystem',
 '/home/wong/control-project/pannos/tools/gcc-4.3.2-glibc-2.7/lib/gcc/arm-vfp-linux-gnu/4.3.2/include-fixed',
 '-I',
+'./sdk/include',
+'-I',
 './app/rs485d/include',
 '-I',
 './app/rs485d/lib/libmodbus-3.0.6/include',

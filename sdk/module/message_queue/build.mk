@@ -1,6 +1,5 @@
 
-
-#message_queue := message_queue
+message_queue := message_queue
 
 libs-y += lib$(message_queue)
 

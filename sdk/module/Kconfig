@@ -1,0 +1,90 @@
+##########################
+#This config the module
+
+#####################################
+#config daemon
+config ENABLE_MODULE_DAEMON
+    bool "Enable daemon"
+    help
+        The daemon module enable
+
+####################################
+#config message queue
+config ENABLE_MODULE_MESSAGE_QUEUE
+    bool "Enable message_queue"
+    help
+        The message_queue module enable
+
+####################################
+#config ringbuffer
+config ENABLE_MODULE_RINGBUFFER
+    bool "Enable ringbuffer"
+    help
+        The ringbuffer module enable
+
+
+#####################################
+#config timer
+config ENABLE_MODULE_TIMER
+    bool "Enable timer"
+    help
+        The timer module enable
+
+menu "timer"
+    depends on ENABLE_MODULE_TIMER
+
+choice
+    prompt "Timer percision"
+    default MODULE_TIMER_PERCISION_1S
+
+config MODULE_TIMER_PERCISION_10MS
+    bool "10 ms"
+    help
+        The percision is 10ms
+
+config MODULE_TIMER_PERCISION_50MS
+    bool "50 ms"
+    help
+        The percision is 50ms
+
+config MODULE_TIMER_PERCISION_100MS
+    bool "100 ms"
+    help
+        The percision is 100ms
+
+config MODULE_TIMER_PERCISION_500MS
+    bool "500 ms"
+    help
+        The percision is 500ms
+
+config MODULE_TIMER_PERCISION_1S
+    bool "1 second"
+    help
+        The percision is 1 second
+
+config MODULE_TIMER_PERCISION_10S
+    bool "10 second"
+    help
+        The percision is 10 second
+endchoice
+
+
+choice
+    prompt "Tick type"
+
+config MODULE_TIMER_TICK_TYPE_SLEEP
+    depends on (MODULE_TIMER_PERCISION_1S || MODULE_TIMER_PERCISION_10S)
+    bool "Sleep"
+    help
+        The tick is used system call sleep() function
+
+config MODULE_TIMER_TICK_TYPE_SELECT
+    bool "Select"
+    help
+        The tick is used system call select() function
+endchoice
+
+endmenu
+
+
+
