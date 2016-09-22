@@ -408,10 +408,12 @@ void panno_s_item_config(adapter_t* adapter,
 
 /* The new config, have use the device factory by ETS */
 #ifdef CONFIG_NEW_ITEM_CONFIG
+
     _mount_device(adapter,
             adapter->message_content.mount_device.object_id,
             adapter->message_content.mount_device.factory_name,
             device_addr);
+
 #endif
 
 }
