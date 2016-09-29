@@ -20,3 +20,7 @@ endif
 ifeq ($(CONFIG_ENABLE_MODULE_RINGBUFFER),y)
 subdir-y += ringbuffer
 endif
+
+ifeq ($(CONFIG_ENABLE_MODULE_WLIST), y)
+subdir-y += list
+endif
