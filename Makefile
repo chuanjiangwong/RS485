@@ -39,6 +39,7 @@ endif
 ###########################################
 #sdk subdir
 subdir-y += sdk/module
+subdir-y += sdk/frame
 
 
 #include build/hapsdk_rules.mk

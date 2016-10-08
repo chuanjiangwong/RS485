@@ -1,6 +1,6 @@
 
 
-timer := timer
+timer := wtimer
 
 libs-y += lib$(timer)
 
