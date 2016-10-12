@@ -46,10 +46,6 @@ extern struct device *get_device(struct device *dev);
 extern void put_device(struct device *dev);
 extern int devres_release_all(struct device *dev);
 
-extern inline void *dev_get_drvdata(struct device *dev);
-
-extern inline void dev_set_drvdata(struct device *dev, void *data);
-
 extern inline bool device_is_registered(struct device *dev);
 
 

@@ -26,10 +26,10 @@
 #include <stdbool.h>
 
 #include <wlog.h>
-#include <private.h>
 #include <wbus.h>
 #include <wlist.h>
 
+#include "private.h"
 
 
 
@@ -131,6 +131,8 @@ void device_del(struct device *dev)
 	bus_remove_device(dev);
 
 	devres_release_all(dev);
+
+	dev->release(dev);
 }
 
 
@@ -170,10 +172,12 @@ struct device *device_create_vargs(void *drvdata,
 	vsnprintf(dev->bus_id, BUS_ID_SIZE, fmt, args);
 	retval = device_register(dev);
 	if (retval)
-		goto error;
+		goto device_register_fail;
 
 	return dev;
 
+device_register_fail:
+	free(dev);
 error:
 	return  NULL;
 }

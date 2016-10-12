@@ -94,4 +94,10 @@ endchoice
 endmenu
 
 
+############################################################
+#config bitmap
+config ENABLE_MODULE_WBITMAP
+    bool "Enable bitmap"
+    help
+        The bitmap module
 

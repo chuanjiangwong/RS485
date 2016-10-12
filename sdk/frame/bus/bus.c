@@ -24,9 +24,8 @@
 #include <stdlib.h>
 
 #include <wlog.h>
-#include <private.h>
 #include <wbus.h>
-
+#include "private.h"
 
 
 
@@ -68,13 +67,6 @@ static struct device_driver *next_driver(struct wlist_iter *i)
 }
 
 
-static struct device *next_device(struct wlist_iter *i)
-{
-	struct wlist_node *n = wlist_next(i);
-	return n ? container_of(n, struct device, wnode_bus) : NULL;
-}
-
-
 int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
                 void *data, int (*fn)(struct device_driver *, void *))
 {
@@ -89,6 +81,33 @@ int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
 	                start ? &start->p->wnode_bus : NULL);
 	while ((drv = next_driver(&i)) && !error)
 		error = fn(drv, data);
+	wlist_iter_exit(&i);
+	return error;
+}
+
+
+
+static struct device *next_device(struct wlist_iter *i)
+{
+	struct wlist_node *n = wlist_next(i);
+	return n ? container_of(n, struct device, wnode_bus) : NULL;
+}
+
+
+int bus_for_each_dev(struct bus_type *bus, struct device *start,
+		     void *data, int (*fn)(struct device *, void *))
+{
+	struct wlist_iter i;
+	struct device *dev;
+	int error = 0;
+
+	if (!bus)
+		return -EINVAL;
+
+	wlist_iter_init_node(&bus->p->wlist_devices, &i,
+			     (start ? &start->wnode_bus : NULL));
+	while ((dev = next_device(&i)) && !error)
+		error = fn(dev, data);
 	wlist_iter_exit(&i);
 	return error;
 }
@@ -182,6 +201,7 @@ int bus_add_driver(struct device_driver *drv)
 		error = -ENOMEM;
 		goto out_put_bus;
 	}
+	memset(priv, 0, sizeof(*priv));
 	wlist_init(&priv->wlist_devices, NULL, NULL);
 	priv->driver = drv;
 	drv->p = priv;
@@ -268,6 +288,7 @@ int bus_register(struct bus_type *bus)
 	priv = malloc(sizeof(struct bus_type_private));
 	if (!priv)
 		return -ENOMEM;
+	memset(priv, 0, sizeof(struct bus_type_private));
 
 	priv->bus = bus;
 	bus->p = priv;

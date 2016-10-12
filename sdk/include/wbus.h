@@ -84,7 +84,8 @@ struct device_driver
 };
 
 
-
+extern int bus_register(struct bus_type *bus);
+extern void bus_unregister(struct bus_type *bus);
 extern int bus_add_device(struct device *dev);
 extern void bus_attach_device(struct device *dev);
 extern void bus_remove_device(struct device *dev);
@@ -95,13 +96,21 @@ extern int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
 extern int bus_for_each_dev(struct bus_type *bus, struct device *start, void *data,
 		     int (*fn)(struct device *dev, void *data));
 
+
+extern int driver_register(struct device_driver *drv);
+extern void driver_unregister(struct device_driver *drv);
 extern int driver_attach(struct device_driver *drv);
 extern void driver_detach(struct device_driver *drv);
 extern int driver_probe_device(struct device_driver *drv, struct device *dev);
 
+
+extern int device_register(struct device *dev);
+extern void device_unregister(struct device *dev);
 extern void device_release_driver(struct device *dev);
 extern int device_attach(struct device *dev);
 
+extern inline void *dev_get_drvdata(struct device *dev);
+extern inline void dev_set_drvdata(struct device *dev, void *data);
 
 
 

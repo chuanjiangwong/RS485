@@ -30,7 +30,7 @@ typedef struct rs485_init
     /* The pannel_s define the knx id */
     int                                             knx_id;
     /* The device mac address */
-    unsigned char                                   address;
+    unsigned char                                   address[4];
 
     /* add :@date Sun 18 Sep, 2016 */
     /* The device factory type, defind by enum.h */

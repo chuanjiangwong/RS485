@@ -99,7 +99,7 @@ endif
 #endef
 
 define b-cmd-bin
-$($(1)-LD) -o $(2) $($(1)-objs-y) $($(1)-lflags-y) $($(1)-prebuilt-libs-y) $($(1)-libs-paths-y) $(global-prebuilt-libs-y) $(global-cflags-y) -Wl,-Map,$(2).map
+$($(1)-LD) -o $(2) $($(1)-objs-y) $($(1)-lflags-y) -Wl,--start-group $($(1)-prebuilt-libs-y) $($(1)-libs-paths-y) $(global-prebuilt-libs-y) -Wl,--end-group $(global-cflags-y) -Wl,-Map,$(2).map
 endef
 
 define b-cmd-archive

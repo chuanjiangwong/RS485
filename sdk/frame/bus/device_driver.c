@@ -20,9 +20,8 @@
 
 /* SDK include */
 #include <wlog.h>
-#include <private.h>
 #include <wbus.h>
-
+#include "private.h"
 
 
 
@@ -68,7 +67,7 @@ static int really_probe(struct device *dev, struct device_driver *drv)
 {
 	int ret = 0;
 
-	wlog_info("bus: '%s': %s: probing driver %s with device %s\n",
+	wlog_debug("bus: '%s': %s: probing driver %s with device %s\n",
 					drv->bus->name, __func__, drv->name, dev->bus_id);
 
 	dev->driver = drv;
