@@ -79,9 +79,16 @@ static char get_input(void)
 static struct rs485_init rs485_device[] =
 {
     /* device_type */ /* knx id */ /* device address */
-    {Air_Conditioner,       71,         0x11},
-    {Air_Conditioner,       78,         0x13},
-    {Air_Conditioner,       85,         0x14},
+    {Air_Conditioner,       71,         {0x11}},
+    {Air_Conditioner,       78,         {0x13}},
+    {Air_Conditioner,       85,         {0x14}},
+};
+
+static struct rs485_bus_init rs485_bus =
+{
+    .protocol = RS485_PROTOCOL_TYPE_BACNET,
+    .interface.baud_rate = 9600,
+    .interface.parity = RS485_PORT_TYPE_NONE,
 };
 #endif
 
@@ -91,10 +98,17 @@ static struct rs485_init rs485_device[] =
 static struct rs485_init rs485_device[] =
 {
     /* device_type */ /* knx id */ /* device address */
-    {RS485_Curtain,         1,         0xfe},
-    {RS485_Curtain,         5,         0xee},
-    {Fresh_Air,             8,         0xcf},
-    {Air_Conditioner,       71,        0x01},
+    {RS485_Curtain,         1,         {0xfe}},
+    {RS485_Curtain,         5,         {0xee}},
+    {Fresh_Air,             8,         {0xcf}},
+    {Air_Conditioner,       71,        {0x01}},
+};
+
+static struct rs485_bus_init rs485_bus =
+{
+    .protocol = RS485_PROTOCOL_TYPE_GENERAL,
+    .interface.baud_rate = 9600,
+    .interface.parity = RS485_PORT_TYPE_NONE,
 };
 #endif
 
@@ -105,9 +119,16 @@ static struct rs485_init rs485_device[] =
 static struct rs485_init rs485_device[] =
 {
     /* device_type */ /* knx id */ /* device address */
-    {Air_Conditioner,       71,         0x02},
-    {Air_Conditioner,       78,         0x03},
-    {Air_Conditioner,       85,         0x04},
+    {Air_Conditioner,       71,         {0x02}},
+    {Air_Conditioner,       78,         {0x03}},
+    {Air_Conditioner,       85,         {0x04}},
+};
+
+static struct rs485_bus_init rs485_bus =
+{
+    .protocol = RS485_PROTOCOL_TYPE_MODBUS,
+    .interface.baud_rate = 9600,
+    .interface.parity = RS485_PORT_TYPE_NONE,
 };
 #endif
 
@@ -135,20 +156,8 @@ int main(int argc, char* argv[])
 {
     int error = 0;
 
-#ifdef CONFIG_RS485C_PROTOCOL_BACNET
     error = rs485_device_init(rs485_device, sizeof(rs485_device)/sizeof(struct rs485_init),
-            RS485_PROTOCOL_TYPE_BACNET);
-#endif
-
-#ifdef CONFIG_RS485C_PROTOCOL_GENERAL
-    error = rs485_device_init(rs485_device, sizeof(rs485_device)/sizeof(struct rs485_init),
-            RS485_PROTOCOL_TYPE_GENERAL);
-#endif
-
-#ifdef CONFIG_RS485C_PROTOCOL_MODBUS
-    error = rs485_device_init(rs485_device, sizeof(rs485_device)/sizeof(struct rs485_init),
-            RS485_PROTOCOL_TYPE_MODBUS);
-#endif
+            &rs485_bus);
 
     if(error)
     {

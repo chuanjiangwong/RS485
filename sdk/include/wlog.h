@@ -4,7 +4,7 @@
  *
  *       Filename:  wlog.h
  *
- *    Description:  
+ *    Description:  The sdk log define
  *
  *        Version:  1.0
  *        Created:  Sep 29, 2016 2:52:18 PM
@@ -25,6 +25,7 @@
 #define wlog_debug(...)
 #define wlog_warning(...)
 #define wlog_error(...)
+#define wlog_printf(...)
 
 
 

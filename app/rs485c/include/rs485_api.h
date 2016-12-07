@@ -18,11 +18,24 @@ extern "C" {
 #endif
 
 
-    /* -----------------------------------------*/
-    /**
-     * @brief rs485_init device initialize define
-     */
-    /* -----------------------------------------*/
+
+enum RS485_PORT_BAUD_RATE
+{
+    RS485_PORT_BAUD_RATE_2400 = 0,
+    RS485_PORT_BAUD_RATE_4800,
+    RS485_PORT_BAUD_RATE_9600,
+    RS485_PORT_BAUD_RATE_14400,
+    RS485_PORT_BAUD_RATE_19200,
+    RS485_PORT_BAUD_RATE_38400,
+    RS485_PORT_BAUD_RATE_57600,
+    RS485_PORT_BADU_RATE_115200,
+};
+
+/* -----------------------------------------*/
+/**
+ * @brief rs485_init device initialize define
+ */
+/* -----------------------------------------*/
 typedef struct rs485_init
 {
     /* The panel_s_dev_control.h have define the device type */
@@ -37,9 +50,29 @@ typedef struct rs485_init
     rs485_factory_name_enum                         factory;
 }rs485_init_t;
 
+struct rs485_bus_init
+{
+    /* bus type */
+    rs485_protocol_type_enum                        protocol;
+
+    /* RS485 UART information, define by adapter.h */
+    /* @note: typedef struct
+     * {
+     *  unsigned int    baud_rate;
+     *  char            interface_name[16];
+     *  rs485_port_parity_type_enum     parity;
+     * };
+     *
+     * The must full -> baud_rate;
+     *                  parity;
+     * */
+    rs485_port_t                                    interface;
+};
+
 
 /*device function*/
-extern int rs485_device_init(struct rs485_init device[], int numbers, rs485_protocol_type_enum protocol);
+extern int rs485_device_init(struct rs485_init device[], int numbers,
+        const struct rs485_bus_init * bus);
 
 extern void rs485_device_deinit(void);
 

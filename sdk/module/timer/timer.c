@@ -29,8 +29,8 @@
 #include <sys/select.h>
 #endif
 
-#include "../../include/klist.h"
-#include "wtimer.h"
+#include <klist.h>
+#include <wtimer.h>
 
 
 /* ------------------------------------------------------------------*/
@@ -66,27 +66,31 @@ static bool timer_task_start_status = false;
 
 /* The timer tick percision */
 #ifdef CONFIG_MODULE_TIMER_PERCISION_10MS
-static int timer_percision = 10;
+#define TIMER_PERCISION 				(10)
 #endif
 
 #ifdef CONFIG_MODULE_TIMER_PERCISION_50MS
-static int timer_percision = 50;
+#define TIMER_PERCISION 				(50)
 #endif
 
 #ifdef CONFIG_MODULE_TIMER_PERCISION_100MS
-static int timer_percision = 100;
+#define TIMER_PERCISION 				(100)
 #endif
 
 #ifdef CONFIG_MODULE_TIMER_PERCISION_500MS
-static int timer_percision = 500;
+#define TIMER_PERCISION 				(500)
 #endif
 
 #ifdef CONFIG_MODULE_TIMER_PERCISION_1S
-static int timer_percision = 1000;
+#define TIMER_PERCISION 				(1000)
 #endif
 
 #ifdef CONFIG_MODULE_TIMER_PERCISION_10S
-static int timer_percision = 10000;
+#define TIMER_PERCISION 				(10000)
+#endif
+
+#ifndef TIMER_PERCISION
+#define TIMER_PERCISION 				(1000)
 #endif
 
 /* ------------------------------------------------------------------*/
@@ -98,15 +102,15 @@ static int timer_percision = 10000;
 static void timer_tick(void)
 {
 #ifdef CONFIG_MODULE_TIMER_TICK_TYPE_SLEEP
-    sleep(timer_percision / 1000);
+    sleep(TIMER_PERCISION / 1000);
 #endif
 
 #ifdef CONFIG_MODULE_TIMER_TICK_TYPE_SELECT
     struct timeval tv;
     int     error = 0;
 
-    tv.tv_sec = timer_percision / 1000;
-    tv.tv_usec = (timer_percision % 1000) * 1000;
+    tv.tv_sec = TIMER_PERCISION / 1000;
+    tv.tv_usec = (TIMER_PERCISION % 1000) * 1000;
 
     do
     {
@@ -150,7 +154,7 @@ static void* timer_task_pthread_handle(void* arg)
         	if(pos->enable == false)
                 continue;
 
-            pos->tick += timer_percision;
+            pos->tick += TIMER_PERCISION;
             if(pos->tick < pos->period)
                 continue;
 

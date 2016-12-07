@@ -21,10 +21,8 @@
 #define APP_CORE_INCLUDE_CORE_H_
 
 #include <pthread.h>
-#include <semaphore.h>
-
 #include <wbus.h>
-#include <ringbuf.h>
+
 
 
 struct rs485_device;
@@ -60,7 +58,7 @@ struct interface_profile
     const char*                 port_name;
     unsigned int                baud_rate;
     enum interface_data_bits    data_bits;
-    enum interface_parodd       parodd;
+    enum interface_parodd       parity;
     enum interface_stop_bits    stop_bots;
 };
 
@@ -76,16 +74,18 @@ struct rs485_bus_type
     unsigned int                id;
     struct interface_profile    interface;
 
-    /* The rs485 bus protocol pthread */
+    /* The rs485 bus protocol thread */
     pthread_t                   pthread;
-    void* (*pthread_function)(void* arg);
+    void*   (*stack_handle)	    (void* 	stack);
+    int     (*init)             (void**	stack, 	struct interface_profile const * interface);
+    void 	(*clean)			(void* 	stack);
 
     /* The rs485 bus protocol stack function */
-    int (*write_data_to_stack)(void const * data, int len);
-    int (*read_data_to_stack)(void* data, int len);
+    int     (*write)	        (void* stack, void const * buffer, int len);
+    int     (*read)	            (void* stack, void* buffer, int len);
 
     struct bus_type             bus;
-    void*                       bus_data;
+    void*                       stack;
 };
 
 
@@ -149,13 +149,13 @@ struct rs485_driver
     int (*resume)(struct rs485_device*);
 
     int (*command)(struct rs485_device* device, unsigned int cmd, void* arg);
-    int (*get_buffer)(unsigned char* buffer, struct rs485_device const * device, void* bus_stack_data);
-    int (*put_buffer)(unsigned char* buffer, struct rs485_device const * device, void* bus_stack_data);
+    int (*get_buffer)(unsigned char* buffer, int len, struct rs485_device_info const * info, void const * bus_stack_data);
+    int (*put_buffer)(unsigned char* buffer, int len, struct rs485_device_info const * info, void const * bus_stack_data);
 
     struct device_driver        driver;
     void*                       driver_data;
 
-    struct list_head            devices;
+//    struct list_head            devices;
 };
 
 #define to_rs485_driver(d) container_of(d, struct rs485_driver, driver)
@@ -177,6 +177,7 @@ extern void rs485_device_unregister(struct rs485_device* dev);
 extern inline int set_device_data(struct rs485_device* dev, void* data);
 extern inline void* get_device_data(struct rs485_device const * dev);
 
+extern struct rs485_device* get_device_by_id(unsigned int id);
 
 /* for rs485 driver device function */
 extern int rs485_driver_register(struct rs485_driver *driver);

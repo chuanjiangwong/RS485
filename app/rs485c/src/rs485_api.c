@@ -237,8 +237,33 @@ static int recv_message_from_rs485d(void* buffer, int buffer_len)
 }
 
 
+static unsigned int get_baud_rate(unsigned int rate)
+{
+    switch (rate)
+    {
+        case RS485_PORT_BAUD_RATE_2400:
+            return 2400;
+        case RS485_PORT_BAUD_RATE_4800:
+            return 4800;
+        case RS485_PORT_BAUD_RATE_9600:
+            return 9600;
+        case RS485_PORT_BAUD_RATE_14400:
+            return 14400;
+        case RS485_PORT_BAUD_RATE_19200:
+            return 19200;
+        case RS485_PORT_BAUD_RATE_38400:
+            return 38400;
+        case RS485_PORT_BAUD_RATE_57600:
+            return 57600;
+        case RS485_PORT_BADU_RATE_115200:
+            return 115200;
 
-static int create_object(rs485_protocol_type_enum protocol)
+        default:
+            return 9600;
+    }
+}
+
+static int create_object(const struct rs485_bus_init * bus)
 {
     adapter_t       adapter;
     int             n = 0;
@@ -248,13 +273,13 @@ static int create_object(rs485_protocol_type_enum protocol)
     adapter.message_type = SERVICE_CREATE_RS485_OBJECT;
     adapter.message_length = sizeof(adapter_t);
     strcpy(adapter.message_content.new_object.object_name, "enno");
-    adapter.message_content.new_object.object_type = protocol;
+    adapter.message_content.new_object.object_type = bus->protocol;
     /** FIXME: The device if have a VRV adapter , It's maybe have 64 device.
      * if have a under connect, The max is 32*/
     adapter.message_content.new_object.mount_device_max = 64;
-    adapter.message_content.new_object.port.baud_rate = 9600;
+    adapter.message_content.new_object.port.baud_rate = get_baud_rate(bus->interface.baud_rate);
     strcpy(adapter.message_content.new_object.port.interface_name, "/dev/ttyS1");
-    adapter.message_content.new_object.port.parity = RS485_PORT_TYPE_EVEN;
+    adapter.message_content.new_object.port.parity = bus->interface.parity;
     adapter.message_content.new_object.address[0] = 0x01;
     adapter.message_content.new_object.address_len = 1;
 
@@ -307,7 +332,7 @@ static int delete_object(int object_id)
 static int mount_device(int object_id,
         rs485_device_type_enum device_type,
         rs485_factory_name_enum factory,
-        unsigned char addr)
+        unsigned char addr[4])
 {
     adapter_t       adapter;
     int             n = 0;
@@ -322,7 +347,9 @@ static int mount_device(int object_id,
     adapter.message_content.mount_device.object_id = object_id;
     adapter.message_content.mount_device.device_type = device_type;
     adapter.message_content.mount_device.factory_name = factory;
-    adapter.message_content.mount_device.device_addr[0] = addr;
+//    adapter.message_content.mount_device.device_addr[0] = addr;
+    memcpy(adapter.message_content.mount_device.device_addr, addr,
+    	sizeof(adapter.message_content.mount_device.device_addr));
 
     n = send_message_to_rs485d(&(adapter), sizeof(adapter_t));
     if(n != sizeof(adapter_t))
@@ -555,7 +582,8 @@ static void knx_id_map_fresh_air_init(const struct rs485_init* device, int objec
 }
 
 
-int rs485_device_init(struct rs485_init device[], int numbers, rs485_protocol_type_enum protocol)
+int rs485_device_init(struct rs485_init device[], int numbers,
+        const struct rs485_bus_init * bus)
 {
     int n=0, i=0;
     int object_id = 0;
@@ -573,7 +601,7 @@ int rs485_device_init(struct rs485_init device[], int numbers, rs485_protocol_ty
         return -EPERM;
 
     /* create the rs485 obejct */
-    object_id = create_object(protocol);
+    object_id = create_object(bus);
     if(object_id < 0)
     {
         syslog_error("[client]:%s", "create object fail");

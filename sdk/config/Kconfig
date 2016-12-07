@@ -17,7 +17,7 @@ endmenu
 ###########################################
 #The sdk frames
 menu "Framework"
-source "sdk/frame/Kconfig"
+source "sdk/framework/Kconfig"
 endmenu
 
 ############################################

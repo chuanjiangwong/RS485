@@ -12,6 +12,7 @@ config ENABLE_MODULE_DAEMON
 #config message queue
 config ENABLE_MODULE_MESSAGE_QUEUE
     bool "Enable message_queue"
+    default y
     help
         The message_queue module enable
 

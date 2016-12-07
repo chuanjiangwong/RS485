@@ -11,5 +11,10 @@ ifeq ($(CONFIG_ENABLE_APP_TEST),y)
 subdir-y += test
 endif
 
+ifeq ($(CONFIG_ENABLE_APP_RS485C),y)
 subdir-y += rs485c
+endif
+
+ifeq ($(CONFIG_ENABLE_APP_RS485D),y)
 subdir-y += rs485d
+endif

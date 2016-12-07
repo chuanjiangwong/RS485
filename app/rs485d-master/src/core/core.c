@@ -23,8 +23,22 @@
 #include <errno.h>
 
 #include <wlog.h>
+#include <wbitmap.h>
 
 #include "core.h"
+
+#ifndef RS485_BUS_MAX_LIMIT
+#define RS485_BUS_MAX_LIMIT                 (16)
+#endif
+
+#ifndef RS485_DEVICE_MAX_LIMIT
+#define RS485_DEVICE_MAX_LIMIT              (512)
+#endif
+
+
+/** The static variable */
+static wid_table_t     glb_all_bus;
+static wid_table_t     glb_all_device;
 
 
 static int rs485_device_probe(struct device* dev)
@@ -125,9 +139,17 @@ int rs485_bus_register(struct rs485_bus_type* bus)
     if(!(bus->interface.port_name))
         return -EINVAL;
 
-    /* TODO:set id */
+    /* step1. alloc bus id */
+    bus->id = get_unused_id(glb_all_bus);
+    if(bus->id <= 0)
+        return -EPERM;
+    status = id_table_install(glb_all_bus, bus->id, bus);
+    if(status)
+        goto id_table_install_fail;
 
-    /* step1. set bus name , and register system bus*/
+    /* step2. check bus port is had used */
+
+    /* step3. set bus name , and register system bus*/
     bus->bus.name = bus->interface.port_name;
     bus->bus.probe = rs485_device_probe;
     bus->bus.remove = rs485_device_remove;
@@ -138,8 +160,8 @@ int rs485_bus_register(struct rs485_bus_type* bus)
     if(status)
         goto sysbus_register_fail;
 
-    /* step2. init the pthread */
-    status = pthread_create(&bus->pthread, NULL, bus->pthread_function, bus->bus_data);
+    /* step4. init the thread */
+    status = pthread_create(&bus->pthread, NULL, bus->stack_handle, bus->stack);
     if(status)
         goto pthread_init_fail;
 
@@ -148,6 +170,8 @@ int rs485_bus_register(struct rs485_bus_type* bus)
 pthread_init_fail:
     bus_unregister(&bus->bus);
 sysbus_register_fail:
+    id_table_uninstall(glb_all_bus, bus->id);
+id_table_install_fail:
     return status;
 }
 
@@ -156,11 +180,14 @@ void rs485_bus_unregister(struct rs485_bus_type* bus)
     if(!bus)
         return;
 
-    /* step1. cancel the work pthread */
+    /* step1. cancel the work thread */
     pthread_cancel(bus->pthread);
 
     /* step2. unregister system bus */
     bus_unregister(&bus->bus);
+
+    /* step3. unregister bus id */
+    id_table_uninstall(glb_all_bus, bus->id);
 }
 
 
@@ -236,8 +263,12 @@ int rs485_device_create(struct rs485_device_info const *info)
     struct rs485_device *device = NULL;
     struct rs485_bus_type *match_bus = NULL;
     int retval = -ENODEV;
+    int id = 0;
 
-    /* TODO: get device id */
+    /* step1. alloc device id */
+    id = get_unused_id(glb_all_device);
+    if(id <= 0)
+        return -EPERM;
 
     /* step2. match bus */
     match_bus = rs485_bus_match_by_name(info->match_bus);
@@ -256,10 +287,16 @@ int rs485_device_create(struct rs485_device_info const *info)
     }
     memset(device, 0, sizeof(*device));
 
-    /* step4. full device info */
+    /* step4. install device id */
+    device->id = id;
+    retval = id_table_install(glb_all_device, id, device);
+    if(retval)
+        goto id_table_install_fail;
+
+    /* step5. full device info */
     memcpy(&device->info, info, sizeof(struct rs485_device_info));
 
-    /* step5. full dev */
+    /* step6. full dev */
     device->dev.bus = &match_bus->bus;
     device->dev.release = rs485_device_create_release;
     dev_set_drvdata(&device->dev, &device->info);
@@ -277,6 +314,8 @@ int rs485_device_create(struct rs485_device_info const *info)
     return 0;
 
 sysdevice_register_fail:
+    id_table_uninstall(glb_all_bus, id);
+id_table_install_fail:
     free(device);
 error:
     return retval;
@@ -288,8 +327,49 @@ void rs485_device_destroy(struct rs485_device *device)
     if(!device)
         return;
 
+    /* step1. unregister system device */
     device_unregister(&device->dev);
+    /* step2. unregister device id table */
+    id_table_uninstall(glb_all_device, device->id);
+    /* step3. free rs485 device */
+    free(device);
+}
+
+
+struct rs485_device* get_device_by_id(unsigned int id)
+{
+    struct rs485_device *device = NULL;
+
+    if(id_table_get(glb_all_device, device, id))
+        reurn NULL;
+
+    return device;
 }
 
 
 
+int rs485_frame_bus_init(void)
+{
+    /* step1. init a bus id table */
+    glb_all_bus = id_table_init(sizeof(void*), RS485_BUS_MAX_LIMIT);
+    if(!glb_all_bus)
+        goto glb_all_bus_fail;
+
+    /* step2. init a device id table */
+    glb_all_device = id_table_init(sizeof(void*), RS485_DEVICE_MAX_LIMIT);
+    if(!glb_all_device)
+        goto glb_all_device_fail;
+
+
+glb_all_device_fail:
+    id_table_release(glb_all_bus);
+glb_all_bus_fail:
+    return -EPERM;
+}
+
+
+void rs485_frame_bus_destroy(void)
+{
+    id_table_release(glb_all_device);
+    id_table_release(glb_all_bus);
+}

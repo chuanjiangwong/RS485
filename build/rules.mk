@@ -229,7 +229,7 @@ $(foreach d,$(sort $(foreach p,$(b-exec-y),$($(p)-output-dir-y))),$(eval $(call 
 define b-gen-bin
   @echo " [bin] $(call b-abspath,$(2))"
   $(AT)$(call b-cmd-bin,$(1),$(2))
-  @echo " [map] $(call b-abspath,$(2).map)"
+  @echo " [map] $(call b-abspath,$(2:%.bin=%.map))"
   $(call cmd_save,$(call b-cmd-bin,$(1),$(2)))
 endef
 
@@ -259,18 +259,18 @@ define b-gen-cpp-to-o
 endef
 
 define create_bin
-  $(1).app: $(b-output-dir-y)/$(1)
+  $(1).app: $(b-output-dir-y)/$(1).bin
 # Following dependency rule only checks existence of $(1)-output-dir-y, not its timestamp
-  $(b-output-dir-y)/$(1): | $(b-output-dir-y)
+  $(b-output-dir-y)/$(1).bin: | $(b-output-dir-y)
 
-  $(b-output-dir-y)/$(1): $$($(1)-objs-y) $$($(1)-libs-paths-y) $$(global-prebuilt-libs-y) $(tc-force-opt)
+  $(b-output-dir-y)/$(1).bin: $$($(1)-objs-y) $$($(1)-libs-paths-y) $$(global-prebuilt-libs-y) $(tc-force-opt)
 	$$(call if_changed_1,b-cmd-bin,b-gen-bin,$(1))
 
   .PHONY: $(1).app.clean
   clean: $(1).app.clean
   $(1).app.clean:
 	@echo " [clean] $(1)"
-	$$(AT)$(t_rm) -f $($(1)-output-dir-y)/$(1) $($(1)-output-dir-y)/$(1).map $$($(1)-objs-y) $$($(1)-objs-y:.o=.d)  $$($(1)-objs-y:.o=.o.cmd) $($(1)-output-dir-y)/$(1).cmd
+	$$(AT)$(t_rm) -f $($(1)-output-dir-y)/$(1).bin $($(1)-output-dir-y)/$(1).map $$($(1)-objs-y) $$($(1)-objs-y:.o=.d)  $$($(1)-objs-y:.o=.o.cmd) $($(1)-output-dir-y)/$(1).cmd
 endef
 
 $(foreach p,$(b-exec-y), $(eval $(call create_bin,$(p))))

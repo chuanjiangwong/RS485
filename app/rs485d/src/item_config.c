@@ -137,8 +137,10 @@ static void _mount_device(adapter_t* adapter, int object_id, rs485_factory_name_
             adapter->message_content.mount_device.support_reply= true;
             strncpy(adapter->message_content.mount_device.device_name, "dooya, GuangZhou",
                     sizeof(adapter->message_content.mount_device.device_name));
+#if 0
             adapter->message_content.mount_device.device_addr[0] = addr;
             adapter->message_content.mount_device.device_addr[1] = 0xfe;
+#endif
             adapter->message_content.mount_device.device_addr_len = 2;
             break;
 

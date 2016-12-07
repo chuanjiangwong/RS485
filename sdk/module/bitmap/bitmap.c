@@ -1,4 +1,3 @@
-
 /*
  * =====================================================================================
  *
@@ -24,66 +23,91 @@
 #include <wbitmap.h>
 #include <errno.h>
 
+wbitmap_t alloc_bitmap(unsigned int size)
+{
+	size_t buffSize = (size / 8) + 1;
+	wbitmap_t bmp = (wbitmap_t) calloc(buffSize, sizeof(uint8_t));
 
+	if (bmp == NULL)
+	{
+		errno = ENOMEM;
+	}
 
-wbitmap_t alloc_bitmap(unsigned int size) {
-    size_t buffSize = (size / 8) + 1;
-    wbitmap_t bmp = (wbitmap_t)calloc(buffSize, sizeof(uint8_t));
-
-    if (bmp == NULL) {
-        errno = ENOMEM;
-    }
-
-    return bmp;
+	return bmp;
 }
 
-int check_bitmap(wbitmap_t bitmap, unsigned int index) {
+int check_bitmap(wbitmap_t const bitmap, unsigned int index)
+{
 
-    if (bitmap == NULL) {
-        errno = EINVAL;
-        return errno;
-    }
+	if (bitmap == NULL)
+	{
+		errno = EINVAL;
+		return errno;
+	}
 
-    unsigned int byte =  index / 8;
-    uint8_t offset = index % 8;
+	unsigned int byte = index / 8;
+	uint8_t offset = index % 8;
 
-    uint8_t shift = (0x1 << offset) & bitmap[byte];
-    return (shift != 0);
+	uint8_t shift = (0x1 << offset) & bitmap[byte];
+	return (shift != 0);
 }
 
-void free_bitmap(wbitmap_t bitmap) {
-    if (bitmap != NULL) {
-        free(bitmap);
-    }
+void free_bitmap(wbitmap_t bitmap)
+{
+	if (bitmap != NULL)
+	{
+		free(bitmap);
+	}
 }
 
-int set_bitmap(wbitmap_t bitmap, unsigned int index) {
+int set_bitmap(wbitmap_t bitmap, unsigned int index)
+{
 
-    if (bitmap == NULL) {
-        errno = EINVAL;
-        return errno;
-    }
+	if (bitmap == NULL)
+	{
+		errno = EINVAL;
+		return errno;
+	}
 
-    unsigned int byte =  index / 8;
-    uint8_t offset = index % 8;
+	unsigned int byte = index / 8;
+	uint8_t offset = index % 8;
 
-    bitmap[byte] |= (0x1 << offset);
+	bitmap[byte] |= (0x1 << offset);
 
-    return 0;
+	return 0;
 }
 
-int unset_bitmap(wbitmap_t bitmap, unsigned int index) {
-    if (bitmap == NULL) {
-        errno = EINVAL;
-        return errno;
-    }
+int unset_bitmap(wbitmap_t bitmap, unsigned int index)
+{
+	if (bitmap == NULL)
+	{
+		errno = -EINVAL;
+		return errno;
+	}
 
-    unsigned int byte =  index / 8;
-    uint8_t offset = index % 8;
+	unsigned int byte = index / 8;
+	uint8_t offset = index % 8;
 
-    bitmap[byte] &= (~(0x1 << offset));
+	bitmap[byte] &= (~(0x1 << offset));
 
-    return 0;
+	return 0;
 }
 
+int find_next_zero_bit(wbitmap_t const bitmap, unsigned int all_size)
+{
+    unsigned int i;
 
+	if (!bitmap)
+		return -EINVAL;
+
+    for(i=1; i<all_size; i++)
+    {
+        if(check_bitmap(bitmap, i))
+            break;
+    }
+
+    if(i >= all_size)
+    	return -EPERM;
+
+	return  i;
+}
