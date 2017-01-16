@@ -298,14 +298,14 @@ int bus_register(struct bus_type *bus)
 	wlist_init(&priv->wlist_devices, wlist_devices_get, wlist_devices_put);
 	wlist_init(&priv->wlist_drivers, NULL, NULL);
 
-	wlog_info("bus: '%s': registered\n", bus->name);
+	wlog_info("bus: '%s': registered", bus->name);
 	return 0;
 }
 
 
 void bus_unregister(struct bus_type *bus)
 {
-	wlog_info("bus: '%s': unregistering\n", bus->name);
+	wlog_info("bus: '%s': unregistering", bus->name);
 	free(bus->p);
 }
 

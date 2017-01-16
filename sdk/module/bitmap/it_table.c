@@ -4,7 +4,7 @@
  *
  *       Filename:  it_table.c
  *
- *    Description:  
+ *    Description:  id table service
  *
  *        Version:  1.0
  *        Created:  Oct 12, 2016 5:42:12 PM
@@ -100,7 +100,8 @@ int id_table_set(wid_table_t w, int id, void const * data)
     if(!check_bitmap(table->map, id))
         return -EPERM;
 
-    memcpy(table->table + id, data, table->element_size);
+    memcpy((unsigned char*)table->table + (id * table->element_size),
+            data, table->element_size);
 
     return 0;
 }
@@ -115,7 +116,8 @@ int id_table_get(wid_table_t w, void* out, int id)
     if(!check_bitmap(table->map, id))
         return -EPERM;
 
-    memcpy(out, table->table + id, table->element_size);
+    memcpy(out, (unsigned char*)table->table + (id * table->element_size),
+            table->element_size);
 
     return 0;
 }
@@ -129,7 +131,8 @@ void id_table_uninstall(wid_table_t w, int id)
     if(!check_bitmap(table->map, id))
         return;
 
-    memset(table->table + id, 0, table->element_size);
+    memset((unsigned char*)table->table + (id * table->element_size)
+            , 0, table->element_size);
 
     unset_bitmap(table->map, id);
 }
@@ -144,7 +147,7 @@ int id_table_install(wid_table_t w, int id, void* data)
         return -EPERM;
 
     if(data)
-        memcpy(table->table + id, data, table->element_size);
+        memcpy((unsigned char*)table->table + (id * table->element_size), data, table->element_size);
 
     return set_bitmap(table->map, id);
 }

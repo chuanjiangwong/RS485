@@ -77,7 +77,7 @@ extern wid_table_t id_table_init(size_t data_size, size_t deep);
 extern int get_unused_id(wid_table_t w);
 extern int id_table_set(wid_table_t w, int id, void const * data);
 extern int id_table_get(wid_table_t w, void* out, int id);
-extern int id_table_install(wid_table_t w, int id);
+extern int id_table_install(wid_table_t w, int id, void* data);
 extern void id_table_uninstall(wid_table_t w, int id);
 extern void id_table_release(wid_table_t w);
 
