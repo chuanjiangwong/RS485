@@ -82,6 +82,7 @@ extern int rs485_get_device_info(read_device_return_t* out,int knx_id);
 
 extern int rs485_server_stop(void);
 
+extern void rs485_daemon_restart(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -25,7 +25,7 @@ extern int interface_send_a_frame(int fd, const void* frame, int len);
 extern int interface_recv_a_frame(int fd, void* frame, int len, unsigned int timeout);
 
 extern int interface_initialize(int *fd, struct interface_profile const * interface);
-extern void interface_cleanup(i);
+extern void interface_cleanup(int fd);
 
 
 #endif /* APP_RS485D_MASTER_SRC_PROTOCOL_CUSTOM_INTERFACE_H_ */

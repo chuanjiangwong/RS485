@@ -14,6 +14,8 @@
  *         Author:  Chuanjiang.wong (wong), chuanjiang.wong1991@gmail.com
  *   Organization:  www.enno.com
  *
+ *   modifi: The mistsubishi eclectric mac-ccs-01m update(1.0) Wed 14 Dec, 2016
+ *
  * =====================================================================================
  */
 
@@ -118,91 +120,91 @@ int mistsubishi_mac_ccs_01m_send_package_handle(volatile void* arg)
         case RS485_AIR_SET_TEMP_29:
         case RS485_AIR_SET_TEMP_30:
             hold_register_value = handle->method * 10;
-            handle->register_addr = hold_register << 8 | (SET_TEMPERATURE_OFFSET & 0xff);
+            handle->register_addr = (SET_TEMPERATURE_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_SWING_AUTO:
             hold_register_value = SET_SWING_AUTO;
-            handle->register_addr = hold_register << 8 | (SET_SWING_OFFSET & 0xff);
+            handle->register_addr = (SET_SWING_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_SWING_UP_DOWN:
             hold_register_value = SET_SWING_UP_DOWN;
-            handle->register_addr = hold_register << 8 | (SET_SWING_OFFSET & 0xff);
+            handle->register_addr = (SET_SWING_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_SWING_LEFT_RIGHT:
             hold_register_value = SET_SWING_LEFT_RIGHT;
-            handle->register_addr = hold_register << 8 | (SET_SWING_OFFSET & 0xff);
+            handle->register_addr = (SET_SWING_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_FAN_AUTO:
             hold_register_value = SET_FAN_AUTO;
-            handle->register_addr = hold_register << 8 | (SET_FANG_OFFSET & 0xff);
+            handle->register_addr = (SET_FANG_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_FAN_HIGH:
             hold_register_value = SET_FAN_HIGH;
-            handle->register_addr = hold_register << 8 | (SET_FANG_OFFSET & 0xff);
+            handle->register_addr = (SET_FANG_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_FAN_MIDDLE:
             hold_register_value = SET_FAN_MIDDLE;
-            handle->register_addr = hold_register << 8 | (SET_FANG_OFFSET & 0xff);
+            handle->register_addr = (SET_FANG_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_FAN_LOW:
             hold_register_value = SET_FAN_LOW;
-            handle->register_addr = hold_register << 8 | (SET_FANG_OFFSET & 0xff);
+            handle->register_addr = (SET_FANG_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_MODE_FANING:
             hold_register_value = SET_MODE_FANING;
-            handle->register_addr = hold_register << 8 | (SET_MODE_OFFSET & 0xff);
+            handle->register_addr = (SET_MODE_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_MODE_HEATING:
             hold_register_value = SET_MODE_HEATING;
-            handle->register_addr = hold_register << 8 | (SET_MODE_OFFSET & 0xff);
+            handle->register_addr = (SET_MODE_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_MODE_COOLING:
             hold_register_value = SET_MODE_COOLING;
-            handle->register_addr = hold_register << 8 | (SET_MODE_OFFSET & 0xff);
+            handle->register_addr = (SET_MODE_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_MODE_DRYING:
             hold_register_value = SET_MODE_DRYING;
-            handle->register_addr = hold_register << 8 | (SET_MODE_OFFSET & 0xff);
+            handle->register_addr = (SET_MODE_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_MODE_AUTOING:
             hold_register_value = SET_MODE_AUTOING;
-            handle->register_addr = hold_register << 8 | (SET_MODE_OFFSET & 0xff);
+            handle->register_addr = (SET_MODE_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_OFF:
             hold_register_value = SET_POWER_OFF;
-            handle->register_addr = hold_register << 8 | (SET_POWER_OFFSET & 0xff);
+            handle->register_addr = (SET_POWER_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
         case RS485_AIR_ON:
             hold_register_value = SET_POWER_ON;
-            handle->register_addr = hold_register << 8 | (SET_POWER_OFFSET & 0xff);
+            handle->register_addr = (SET_POWER_OFFSET & 0xff);
             handle->buffer[0] = hold_register_value >> 8;
             handle->buffer[1] = hold_register_value & 0xff;
             break;
@@ -211,8 +213,6 @@ int mistsubishi_mac_ccs_01m_send_package_handle(volatile void* arg)
             handle->code = MODBUS_FUNCTION_CODE_DO_NOTHING;
             return 0;
     }
-
-    handle->device_addr = MISTSUBISHI_ELECTRIC_CORPORATION_DEFAULT_ADDRESS;
 
     /* return the frame length is 1 */
     return 1;
@@ -226,10 +226,8 @@ int mistsubishi_mac_ccs_01m_get_device_info_send(volatile void* arg)
         return -1;
 
     /* The every air condition have a 6 hold register */
-    handle->register_addr = handle->device_addr << 8;
+    handle->register_addr = 0x00;
     handle->code = MODBUS_FUNCTION_CODE_READ_MULTIPLE_REGISTERS;
-
-    handle->device_addr = MISTSUBISHI_ELECTRIC_CORPORATION_DEFAULT_ADDRESS;
 
     return AIR_CONDITION_INFO_REGISTER_LENGTH;
 }

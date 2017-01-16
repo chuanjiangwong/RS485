@@ -27,6 +27,7 @@ PROJECT_VERSION := \"$(PROJECT_VERSION)\"
 
 $(prj_name)-objs-y := \
 		src/core/core.c \
+		src/core/mdev.c \
 		src/main.c
 
 $(prj_name)-cflags-y := -DAPP_PROJECT_VERSION=$(PROJECT_VERSION) -I$(d)/include

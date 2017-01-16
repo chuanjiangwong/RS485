@@ -703,6 +703,26 @@ void rs485_device_deinit(void)
 }
 
 
+void rs485_daemon_restart(void)
+{
+    int i = 0;
+
+    /* step1. delete object */
+    for(i=0; i<RS485_KNX_MAP_MAX_NUMBERS; i++)
+    {
+        if(glb_knx_map[i].object_id > 0)
+        {
+            delete_object(glb_knx_map[i].object_id);
+            break;
+        }
+    }
+
+    /* step2. close the socket */
+    if(socket_fd > 0)
+        close(socket_fd);
+}
+
+
 
 int rs485_send_to_device(int knx_id, int value)
 {
