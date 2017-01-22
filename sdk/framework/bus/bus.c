@@ -4,7 +4,7 @@
  *
  *       Filename:  bus.c
  *
- *    Description:  
+ *    Description:  device bus class
  *
  *        Version:  1.0
  *        Created:  Sep 29, 2016 9:56:37 AM
@@ -28,6 +28,12 @@
 #include "private.h"
 
 
+#define wlog_e(...)         wlog_error("bus", ##__VA_ARGS__)
+#define wlog_d(...)         wlog_debug("bus", ##__VA_ARGS__)
+#define wlog_i(...)         wlog_info("bus", ##__VA_ARGS__)
+#define wlog_w(...)         wlog_warning("bus", ##__VA_ARGS__)
+
+
 
 static struct bus_type *bus_get(struct bus_type *bus)
 {
@@ -46,7 +52,7 @@ int bus_add_device(struct device *dev)
 
 	if (bus)
 	{
-		wlog_info("bus: '%s': add device %s\n", bus->name, dev->bus_id);
+		wlog_i("bus: '%s': add device %s", bus->name, dev->bus_id);
 	}
 
 	return 0;
@@ -84,6 +90,8 @@ int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
 	wlist_iter_exit(&i);
 	return error;
 }
+
+
 
 
 
@@ -143,9 +151,9 @@ static int match_name(struct device *dev, void *data)
 
 
 struct device *bus_find_device_by_name(struct bus_type *bus,
-                struct device *start, const char *name)
+        struct device *start, const char *name)
 {
-	return bus_find_device(bus, start, (void *) name, match_name);
+	return bus_find_device(bus, start, (void*)name, match_name);
 }
 
 
@@ -162,7 +170,7 @@ void bus_attach_device(struct device *dev)
 			wlist_add_tail(&dev->wnode_bus, &bus->p->wlist_devices);
 		else
 		{
-            wlog_info("bus attach device fail: %d", ret);
+            wlog_i("bus attach device fail: %d", ret);
 		}
 	}
 }
@@ -175,7 +183,7 @@ void bus_remove_device(struct device *dev)
 		if (wlist_node_attached(&dev->wnode_bus))
 			wlist_del(&dev->wnode_bus);
 
-		wlog_info("bus: '%s': remove device %s\n",
+		wlog_i("bus: '%s': remove device %s",
 						dev->bus->name, dev->bus_id);
 		device_release_driver(dev);
 		bus_put(dev->bus);
@@ -192,8 +200,6 @@ int bus_add_driver(struct device_driver *drv)
 	bus = bus_get(drv->bus);
 	if (!bus)
 		return -EINVAL;
-
-	wlog_info("bus: '%s': add driver %s\n", bus->name, drv->name);
 
 	priv = malloc(sizeof(*priv));
 	if (!priv)
@@ -215,9 +221,15 @@ int bus_add_driver(struct device_driver *drv)
 
 	wlist_add_tail(&priv->wnode_bus, &bus->p->wlist_drivers);
 
-	out_unregister: free(priv);
-	out_put_bus: bus_put(bus);
-	return error;
+	wlog_i("bus: '%s': add driver '%s'", bus->name, drv->name);
+
+    return 0;
+
+out_unregister:
+    free(priv);
+out_put_bus:
+    bus_put(bus);
+    return error;
 }
 
 
@@ -227,7 +239,7 @@ void bus_remove_driver(struct device_driver *drv)
 		return;
 
 	wlist_remove(&drv->p->wnode_bus);
-	wlog_info("bus: '%s': remove driver %s\n", drv->bus->name, drv->name);
+	wlog_i("bus: '%s': remove driver %s", drv->bus->name, drv->name);
 	driver_detach(drv);
 	free(drv->p);
 	bus_put(drv->bus);
@@ -298,14 +310,14 @@ int bus_register(struct bus_type *bus)
 	wlist_init(&priv->wlist_devices, wlist_devices_get, wlist_devices_put);
 	wlist_init(&priv->wlist_drivers, NULL, NULL);
 
-	wlog_info("bus: '%s': registered", bus->name);
+	wlog_i("bus: '%s': registereing", bus->name);
 	return 0;
 }
 
 
 void bus_unregister(struct bus_type *bus)
 {
-	wlog_info("bus: '%s': unregistering", bus->name);
+	wlog_i("bus: '%s': unregistering", bus->name);
 	free(bus->p);
 }
 

@@ -40,6 +40,11 @@
 #include <wlog.h>
 #include "core.h"
 
+#define wlog_e(...)         wlog_error("cus:if", ##__VA_ARGS__)
+#define wlog_d(...)         wlog_debug("cus:if", ##__VA_ARGS__)
+#define wlog_i(...)         wlog_info("cus:if", ##__VA_ARGS__)
+#define wlog_w(...)         wlog_warning("cus:if", ##__VA_ARGS__)
+
 
 #ifndef RS485MOD
 #define RS485MOD 0
@@ -50,14 +55,6 @@
 static struct termios RS485_oldtio;
 /* for setting custom divisor */
 static struct serial_struct RS485_oldserial;
-
-
-#define if_error(...)        wlog_error("[if]: ", ##__VA_ARGS__)
-#define if_debug(...)        wlog_debug("[if]: ", ##__VA_ARGS__)
-#define if_info(...)         wlog_info("[if]: ", ##__VA_ARGS__)
-#define if_warning(...)      wlog_warning("[if]: ", ##__VA_ARGS__)
-#define if_printf(...)       wlog_printf("[if]: ", ##__VA_ARGS__)
-
 
 
 
@@ -165,7 +162,7 @@ static unsigned int parse_c_cflag(struct interface_profile const * interface)
     }
 
     /* set stopbits */
-    switch(interface->stop_bots)
+    switch(interface->stop_bits)
     {
         case INTERFACE_STOP_BITS_1:
             cflags &= ~ CSTOPB;
@@ -182,14 +179,14 @@ static unsigned int parse_c_cflag(struct interface_profile const * interface)
     /* set parity bits */
     switch(interface->parity)
     {
-        case INTERFACE_PARODD_NULL:
+        case INTERFACE_PARITY_NULL:
             cflags &= ~ PARENB;
             break;
-        case INTERFACE_PARODD_ODD:
+        case INTERFACE_PARITY_ODD:
             cflags |= PARENB;
             cflags &= ~ PARODD;
             break;
-        case INTERFACE_PARODD_EVEN:
+        case INTERFACE_PARITY_EVEN:
             cflags |= PARENB;
             cflags |= PARODD;
             break;
@@ -212,17 +209,17 @@ static void frame_debug(const uint8_t* frame, int len, bool is_send)
 {
     int i=0;
     if(is_send)
-        if_printf("%s", "[if]: send frame [");
+        printf("%s", "[if]: send frame [");
     else
-        if_printf("%s", "[if]: recv frame <");
+        printf("%s", "[if]: recv frame <");
 
     for(i=0; i<len; i++)
-        if_printf("%02x ", frame[i]);
+        printf("%02x ", frame[i]);
 
     if(is_send)
-        if_printf("%s", "]\n");
+        printf("%s", "]\n");
     else
-        if_printf("%s", ">\n");
+        printf("%s", ">\n");
 }
 
 
@@ -256,7 +253,7 @@ int interface_recv_a_frame(int fd, void* frame, int len, unsigned int timeout)
 	/* have a select error */
 	if (retval < 0)
 	{
-		if_warning("select error: %d", n);
+		wlog_w("select error: %d", retval);
         goto done;
 	}
 	/* have time out */
@@ -273,7 +270,7 @@ int interface_recv_a_frame(int fd, void* frame, int len, unsigned int timeout)
 		retval = read(fd, frame, len);
 		if (retval <= 0)
 		{
-			if_error("read error:%d", n);
+			wlog_e("read error:%d", retval);
 		}
 
         frame_debug(frame, len, false);
@@ -287,7 +284,7 @@ done:
 void interface_cleanup(int fd)
 {
 
-    if_info("clean : %s", RS485_Port_Name);
+    wlog_i("clean : %d", fd);
 
 	/* restore the old port settings */
 	tcsetattr(fd, TCSANOW, &RS485_oldtio);
@@ -305,7 +302,6 @@ int interface_initialize(int * fd, struct interface_profile const * interface)
 
     parse_c_cflag(interface);
 
-	if_info("Initializing %s", RS485_Port_Name);
 	/*
 	 Open device for reading and writing.
 	 Blocking mode - more CPU effecient
@@ -313,7 +309,7 @@ int interface_initialize(int * fd, struct interface_profile const * interface)
 	*fd = open(interface->port_name, O_RDWR | O_NOCTTY);
 	if (*fd < 0)
 	{
-        if_error("open device: %s fail", interface->port_name);
+        wlog_e("open device: '%s' fail: %d", interface->port_name, *fd);
         return *fd;
 	}
 
@@ -352,7 +348,7 @@ int interface_initialize(int * fd, struct interface_profile const * interface)
 	usleep(200000);
 	tcflush(*fd, TCIOFLUSH);
 
-    if_info("%s", "interface initialize success");
+	wlog_i("Initializing '%s' success", interface->port_name);
 
     return 0;
 }

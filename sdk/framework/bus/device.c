@@ -4,7 +4,7 @@
  *
  *       Filename:  device.c
  *
- *    Description:  
+ *    Description:  device class
  *
  *        Version:  1.0
  *        Created:  Sep 29, 2016 2:39:53 PM
@@ -31,6 +31,11 @@
 
 #include "private.h"
 
+
+#define wlog_e(...)         wlog_error("dev", ##__VA_ARGS__)
+#define wlog_d(...)         wlog_debug("dev", ##__VA_ARGS__)
+#define wlog_i(...)         wlog_info("dev", ##__VA_ARGS__)
+#define wlog_w(...)         wlog_warning("dev", ##__VA_ARGS__)
 
 
 
@@ -93,7 +98,7 @@ int device_add(struct device *dev)
 	if (!strlen(dev->bus_id))
 		goto done;
 
-	wlog_info("device: '%s': %s\n", dev->bus_id, __func__);
+	wlog_i("device: '%s' add", dev->bus_id);
 
     error = bus_add_device(dev);
     if(error)
@@ -138,7 +143,7 @@ void device_del(struct device *dev)
 
 void device_unregister(struct device *dev)
 {
-	wlog_info("device: '%s': %s\n", dev->bus_id, __func__);
+	wlog_i("device: '%s' unregister ", dev->bus_id);
 	device_del(dev);
 	put_device(dev);
 }
@@ -147,7 +152,7 @@ void device_unregister(struct device *dev)
 
 static void device_create_release(struct device *dev)
 {
-	wlog_info("device: '%s': %s\n", dev->bus_id, __func__);
+	wlog_i("device: '%s': release", dev->bus_id);
 	free(dev);
 }
 

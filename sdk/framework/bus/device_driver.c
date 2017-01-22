@@ -3,7 +3,7 @@
  *
  *       Filename:  device_driver.c
  *
- *    Description:  
+ *    Description:  driver class
  *
  *        Version:  1.0
  *        Created:  Sep 29, 2016 2:41:04 PM
@@ -18,6 +18,8 @@
 
 #include <errno.h>
 
+#include <string.h>
+
 /* SDK include */
 #include <wlog.h>
 #include <wbus.h>
@@ -25,17 +27,23 @@
 
 
 
+#define wlog_e(...)         wlog_error("dri", ##__VA_ARGS__)
+#define wlog_d(...)         wlog_debug("dri", ##__VA_ARGS__)
+#define wlog_i(...)         wlog_info("dri", ##__VA_ARGS__)
+#define wlog_w(...)         wlog_warning("dri", ##__VA_ARGS__)
+
+
+
 static void driver_bound(struct device *dev)
 {
 	if (wlist_node_attached(&dev->wnode_driver))
 	{
-		wlog_warning("%s: device %s already bound\n",
-						__func__, dev->init_name);
+		wlog_w("device %s already bound", dev->init_name);
 		return;
 	}
 
-	wlog_info("driver: '%s': %s: bound to device '%s'\n", dev->bus_id,
-					__func__, dev->driver->name);
+	wlog_i("driver: '%s': bound to device '%s'",
+            dev->bus_id,dev->driver->name);
 
 	/*if (dev->bus)*/
 
@@ -45,13 +53,10 @@ static void driver_bound(struct device *dev)
 
 int device_bind_driver(struct device *dev)
 {
-	int ret = 0;
-
 	driver_bound(dev);
 
-	return ret;
+	return 0;
 }
-
 
 
 
@@ -67,8 +72,8 @@ static int really_probe(struct device *dev, struct device_driver *drv)
 {
 	int ret = 0;
 
-	wlog_debug("bus: '%s': %s: probing driver %s with device %s\n",
-					drv->bus->name, __func__, drv->name, dev->bus_id);
+	wlog_d("bus: '%s': probing driver %s with device %s",
+					drv->bus->name, drv->name, dev->bus_id);
 
 	dev->driver = drv;
 
@@ -87,24 +92,25 @@ static int really_probe(struct device *dev, struct device_driver *drv)
 
 	driver_bound(dev);
 	ret = 1;
-	wlog_info("bus: '%s': %s: bound device %s to driver %s\n",
-					drv->bus->name, __func__, dev->bus_id, drv->name);
+	wlog_i("bus:'%s': bound device %s to driver %s",
+					drv->bus->name, dev->bus_id, drv->name);
 	goto done;
 
-	probe_failed:
-        devres_release_all(dev);
-        dev->driver = NULL;
 
-	if (ret != -ENODEV && ret != -ENXIO)
+probe_failed:
+    devres_release_all(dev);
+    dev->driver = NULL;
+
+    if (ret != -ENODEV && ret != -ENXIO)
 	{
 		/* driver matched but the probe failed */
-		wlog_warning(
-						"%s: probe of %s failed with error %d\n",
-						drv->name, dev->bus_id, ret);
+		wlog_w("%s: probe of %s failed with error %d",
+                drv->name, dev->bus_id, ret);
 	}
-
 	ret = 0;
-	done: return ret;
+
+done:
+    return ret;
 }
 
 
@@ -124,12 +130,12 @@ int driver_probe_device(struct device_driver *drv, struct device *dev)
 	if (drv->bus->match && !drv->bus->match(dev, drv))
 		goto done;
 
-	wlog_info("bus: '%s': %s: matched device %s with driver %s\n",
-					drv->bus->name, __func__, dev->bus_id, drv->name);
-
+	wlog_i("bus: '%s':matched device %s with driver %s",
+					drv->bus->name, dev->bus_id, drv->name);
 	ret = really_probe(dev, drv);
 
-	done: return ret;
+done:
+    return ret;
 }
 
 static int __device_attach(struct device_driver *drv, void *data)
@@ -153,10 +159,9 @@ int device_attach(struct device *dev)
 			dev->driver = NULL;
 			ret = 0;
 		}
-	} else
-	{
-		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
 	}
+    else
+		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
 
 	return ret;
 }
@@ -267,59 +272,37 @@ struct device *driver_find_device(struct device_driver *drv,
 	return dev;
 }
 
-struct device_driver *get_driver(struct device_driver *drv)
+
+static int driver_match_name(struct device_driver* driver, void* data)
 {
-	return drv;
+    const char* name = data;
+
+    if(strcmp(name, driver->name) == 0)
+        return 1;
+
+    return 0;
 }
 
-void put_driver(struct device_driver *drv)
+static int driver_find(const char *name, struct bus_type *bus)
 {
-}
-
-
-struct device_driver *driver_find(const char *name, struct bus_type *bus)
-{
-
-    /* FIXME: This function have to find drvier private,
-     * but now have now used it*/
-/*
-	struct driver_private *priv;
-
-	if (bus && name)
-	{
-		priv = bus->p;
-		return priv->driver;
-	}
-*/
-
-	return NULL;
+    return bus_for_each_drv(bus, NULL, (void*)name, driver_match_name);
 }
 
 
 
 int driver_register(struct device_driver *drv)
 {
-	int ret;
-	struct device_driver *other;
+	if((drv->bus->probe && drv->probe) || (drv->bus->remove && drv->remove))
+		wlog_w("Driver '%s' needs updating - please use bus_type methods",
+                drv->name);
 
-	if ((drv->bus->probe && drv->probe) || (drv->bus->remove && drv->remove))
-		wlog_warning("Driver '%s' needs updating - please use "
-						"bus_type methods\n", drv->name);
-
-	other = driver_find(drv->name, drv->bus);
-	if (other)
+	if(driver_find(drv->name, drv->bus))
 	{
-		put_driver(other);
-		wlog_error("Error: Driver '%s' is already registered, "
-						"aborting...\n", drv->name);
+		wlog_e("Driver '%s' is already registered,  aborting...", drv->name);
 		return -EEXIST;
 	}
 
-	ret = bus_add_driver(drv);
-	if (ret)
-		return ret;
-
-	return ret;
+	return bus_add_driver(drv);
 }
 
 void driver_unregister(struct device_driver *drv)

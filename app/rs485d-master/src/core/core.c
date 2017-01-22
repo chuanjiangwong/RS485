@@ -26,10 +26,17 @@
 #include <wlog.h>
 #include <wbitmap.h>
 
-#include "core.h"
+#include <core.h>
 
 
 
+#define wlog_e(...)         wlog_error("core", ##__VA_ARGS__)
+#define wlog_d(...)         wlog_debug("core", ##__VA_ARGS__)
+#define wlog_i(...)         wlog_info("core", ##__VA_ARGS__)
+#define wlog_w(...)         wlog_warning("core", ##__VA_ARGS__)
+
+
+#if 0
 static int rs485_device_probe(struct device* dev)
 {
     int status = 0;
@@ -39,7 +46,7 @@ static int rs485_device_probe(struct device* dev)
     if(!driver->probe)
         return -ENODEV;
 
-    wlog_debug("probe: %s", dev->name);
+    wlog_d("probe: %s", dev->bus_id);
 
     device->driver = driver;
     status = driver->probe(device, &device->info);
@@ -61,7 +68,7 @@ static int rs485_device_remove(struct device* dev)
     driver = to_rs485_driver(dev->driver);
     if(driver->remove)
     {
-        wlog_debug("remove: dev:%s", dev->name);
+        wlog_d("remove: dev:%s", dev->bus_id);
         status = driver->remove(device);
     }
     else
@@ -75,6 +82,7 @@ static int rs485_device_remove(struct device* dev)
 
     return status;
 }
+#endif
 
 static int rs485_device_suspend(struct device* dev)
 {
@@ -155,22 +163,24 @@ int rs485_bus_register(struct rs485_bus_type* bus)
             bus->name, bus->interface.port_name);
     if(is_rs485_bus_used(bus->interface.port_name))
     {
-        wlog_info("The bus have used: %s", bus->init_name);
+        wlog_w("The bus '%s' have registered", bus->init_name);
         return -EPERM;
     }
 
     /* step2. init the bus*/
-    if(bus->init)
+    if(bus->probe)
     {
-        status = bus->init(bus);
+        status = bus->probe(bus);
         if(status)
             goto bus_init_fail;
     }
 
     /* step3. set bus name , and register system bus*/
-    bus->bus.name = bus->interface.port_name;
+    bus->bus.name = bus->init_name;
+#if 0
     bus->bus.probe = rs485_device_probe;
     bus->bus.remove = rs485_device_remove;
+#endif
     bus->bus.suspend = rs485_device_suspend;
     bus->bus.resume = rs485_device_resume;
     bus->bus.match = rs485_device_match;
@@ -179,6 +189,8 @@ int rs485_bus_register(struct rs485_bus_type* bus)
         goto sysbus_register_fail;
 
     /* step4. init the bus protocol stack thread */
+    if(!bus->pthread_func)
+        goto pthread_init_fail;
     status = pthread_create(&bus->pthread, NULL, bus->pthread_func, bus->priv_data);
     if(status)
         goto pthread_init_fail;
@@ -186,13 +198,15 @@ int rs485_bus_register(struct rs485_bus_type* bus)
     /* step5. add the bus to rs485 bus list */
     list_add(&bus->entry, &rs485_bus_list);
 
+    wlog_i("rs485 bus: '%s', register success", bus->init_name);
+
     return 0;
 
 pthread_init_fail:
     bus_unregister(&bus->bus);
 sysbus_register_fail:
-    if(bus->clean)
-        bus->clean(bus);
+    if(bus->remove)
+        bus->remove(bus);
 bus_init_fail:
     return status;
 }
@@ -212,8 +226,8 @@ void rs485_bus_unregister(struct rs485_bus_type* bus)
     bus_unregister(&bus->bus);
 
     /* step4. unregister bus from rs485_bus */
-    if(bus->clean)
-        bus->clean(bus);
+    if(bus->remove)
+        bus->remove(bus);
 }
 
 
@@ -257,22 +271,23 @@ static void* rs485_driver_match_bus(const char* bus_name)
     list_for_each(p, &rs485_bus_list)
     {
         bus = (struct rs485_bus_type*)list_entry(p, struct rs485_bus_type, entry);
-        if(strcmp(bus->name, bus_name) == 0)
+        if(strcmp(bus->init_name, bus_name) == 0)
             return bus;
     }
 
     return NULL;
 }
 
-int rs485_driver_register(struct rs485_driver *driver)
+int rs485_driver_register(struct rs485_driver *driver, const char* bus_name)
 {
     struct rs485_bus_type *bus = NULL;
 
-    bus = rs485_driver_match_bus(driver->match_bus);
+    bus = rs485_driver_match_bus(bus_name);
     if(!bus)
         return -ENODEV;
 
     driver->driver.bus = &bus->bus;
+    driver->driver.name = driver->name;
 
     if(driver->probe)
         driver->driver.probe = rs485_driver_probe;
@@ -304,7 +319,7 @@ static void rs485_device_create_release(struct device *dev)
 {
     struct rs485_device *device = to_rs485_device(dev);
 
-    wlog_info("device: '%s' free : %s ", device->dev.bus_id, __func__);
+    wlog_i("device: '%s' free : %s ", device->dev.bus_id, __func__);
     if(device)
         free(device);
 }
@@ -317,7 +332,7 @@ static void* rs485_bus_match_by_name(const char* name)
     list_for_each(p, &rs485_bus_list)
     {
         bus = (struct rs485_bus_type*)list_entry(p, struct rs485_bus_type, entry);
-        if(strcmp(bus->name, name) == 0)
+        if(strcmp(bus->init_name, name) == 0)
             return bus;
     }
 
@@ -337,7 +352,7 @@ int rs485_device_create(struct rs485_device_info const *info, int *id)
     bus = rs485_bus_match_by_name(info->match_bus);
     if(!bus)
     {
-        wlog_debug("bus: '%s' have not exist", info->match_bus);
+        wlog_d("bus: '%s' have not exist", info->match_bus);
         goto error;
     }
 

@@ -20,6 +20,8 @@
 #ifndef APP_CORE_INCLUDE_CORE_H_
 #define APP_CORE_INCLUDE_CORE_H_
 
+#include <stdbool.h>
+
 #include <pthread.h>
 #include <wbus.h>
 #include <klist.h>
@@ -42,9 +44,9 @@ enum interface_data_bits
 
 enum interface_parodd
 {
-    INTERFACE_PARODD_NULL,
-    INTERFACE_PARODD_ODD,
-    INTERFACE_PARODD_EVEN,
+    INTERFACE_PARITY_NULL,
+    INTERFACE_PARITY_ODD,
+    INTERFACE_PARITY_EVEN,
 };
 
 enum interface_stop_bits
@@ -60,7 +62,7 @@ struct interface_profile
     unsigned int                baud_rate;
     enum interface_data_bits    data_bits;
     enum interface_parodd       parity;
-    enum interface_stop_bits    stop_bots;
+    enum interface_stop_bits    stop_bits;
 };
 
 
@@ -82,8 +84,8 @@ struct rs485_bus_type
     void*   (*pthread_func)	    (void* 	priv_data);
 
     /* bus init and clean function */
-    int     (*init)             (struct rs485_bus_type * bus);
-    void 	(*clean)			(struct rs485_bus_type * bus);
+    int     (*probe)            (struct rs485_bus_type * bus);
+    void 	(*remove)			(struct rs485_bus_type * bus);
 
     /* read write data to bus stack */
     int     (*write)            (void* priv_data, void* buffer, int len);
@@ -157,11 +159,13 @@ struct rs485_driver
     int (*resume)(struct rs485_device*);
 
     int (*command)(struct rs485_device* device, unsigned int cmd, void* arg);
-    int (*get)(struct rs485_device * device, void* buffer, int len, void* arg);
-    int (*put)(struct rs485_device * device, void* buffer, int len, void* arg);
+
+    /* custom device driver */
+    int (*get)(void* buffer, int len, const void* arg, bool* broadcast);
+    int (*put)(const void* buffer, int len, const void* arg, void* profile);
 
     /* client information */
-    struct rs485_driver_data*   data;
+    const struct rs485_driver_data   *data;
 
     /* parent class -> driver */
     struct device_driver        driver;
@@ -188,7 +192,7 @@ extern inline void* get_device_data(struct rs485_device const * dev);
 
 
 /* for rs485 driver device function */
-extern int rs485_driver_register(struct rs485_driver *driver);
+extern int rs485_driver_register(struct rs485_driver *driver, const char* bus_name);
 extern void rs485_driver_unregister(struct rs485_driver* driver);
 
 
