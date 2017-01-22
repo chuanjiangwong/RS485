@@ -316,7 +316,7 @@ typedef struct
 {
     /** The message service type */
     rs485_service_type_enum         message_type;
-    /** The message length, just like "sizeof(struct adapter_t)", It's used to check the pakcage imperfections  */
+    /** The message length, just like "sizeof(struct adapter_t)", It's used to check the package imperfections  */
     unsigned int                    message_length;
     /** The message retvl, just message process retvl, the retvl, have used to client to check the service */
     int                             message_retvl;

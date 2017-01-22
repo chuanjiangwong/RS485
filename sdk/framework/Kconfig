@@ -1,0 +1,17 @@
+##########################
+#This config the frame
+
+
+
+##########################
+#config bus
+config ENABLE_FRAME_BUS
+    bool "Enable framework bus"
+    depends on ENABLE_MODULE_WLIST
+    help
+        The bus framework support
+
+
+
+
+

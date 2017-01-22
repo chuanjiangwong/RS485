@@ -24,3 +24,7 @@ endif
 ifeq ($(CONFIG_ENABLE_MODULE_WLIST), y)
 subdir-y += list
 endif
+
+ifeq ($(CONFIG_ENABLE_MODULE_WBITMAP),y)
+subdir-y +=bitmap
+endif

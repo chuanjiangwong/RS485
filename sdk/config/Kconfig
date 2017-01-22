@@ -14,6 +14,11 @@ menu "Modules"
 source "sdk/module/Kconfig"
 endmenu
 
+###########################################
+#The sdk frames
+menu "Framework"
+source "sdk/framework/Kconfig"
+endmenu
 
 ############################################
 #The miscellaneous

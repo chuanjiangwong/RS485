@@ -137,8 +137,10 @@ static void _mount_device(adapter_t* adapter, int object_id, rs485_factory_name_
             adapter->message_content.mount_device.support_reply= true;
             strncpy(adapter->message_content.mount_device.device_name, "dooya, GuangZhou",
                     sizeof(adapter->message_content.mount_device.device_name));
+#if 0
             adapter->message_content.mount_device.device_addr[0] = addr;
             adapter->message_content.mount_device.device_addr[1] = 0xfe;
+#endif
             adapter->message_content.mount_device.device_addr_len = 2;
             break;
 
@@ -186,6 +188,22 @@ static void _mount_device(adapter_t* adapter, int object_id, rs485_factory_name_
             adapter->message_content.mount_device.device_addr[0] = addr;
             adapter->message_content.mount_device.device_addr_len = 1;
             break;
+
+        case RS485_AIRCONDITION_MODBUS_MISTSUBISHI_MAC_CCS_01M:
+            adapter->message_content.mount_device.device_type = RS485_DEVICE_TYPE_AIR_CONDITION;
+            adapter->message_content.mount_device.object_id = object_id;
+            adapter->message_content.mount_device.object_type = RS485_PROTOCOL_TYPE_MODBUS;
+            adapter->message_content.mount_device.factory_name = RS485_AIRCONDITION_MODBUS_MISTSUBISHI_MAC_CCS_01M;
+            adapter->message_content.mount_device.time_out = 500;
+            adapter->message_content.mount_device.retransmission = 2;
+            adapter->message_content.mount_device.device_status_period = 60 * 5; // 5 min;
+            adapter->message_content.mount_device.support_reply= true;
+            strncpy(adapter->message_content.mount_device.device_name, "mistsubishi, Janp",
+                    sizeof(adapter->message_content.mount_device.device_name));
+            adapter->message_content.mount_device.device_addr[0] = addr;
+            adapter->message_content.mount_device.device_addr_len = 1;
+            break;
+
 
         default:
             syslog_warning("have no support device, factory:%d", device);

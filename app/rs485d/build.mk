@@ -39,7 +39,7 @@ message_queue := message_queue
 subdir-y += lib/$(bacnet)
 subdir-y += lib/$(modbus)
 subdir-y += lib/$(list)
-subdir-y += lib/$(message_queue)
+#subdir-y += lib/$(message_queue)
 
 
 ###############################################################
@@ -82,7 +82,8 @@ $(prj_name)-objs-y += \
 	src/device/airCondition/york/johnson_controls.c \
 	src/device/airCondition/panasonnic/panasonnic.c \
 	src/device/airCondition/daikin/DTA116A621.c \
-	src/device/airCondition/hitachi/vrv_manager.c
+	src/device/airCondition/hitachi/vrv_manager.c \
+	src/device/airCondition/mistsubishi/mac_ccs_01m.c
 
 #for device curtain
 $(prj_name)-objs-y += \

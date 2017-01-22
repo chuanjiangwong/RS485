@@ -14,7 +14,8 @@ HOST_CC := gcc
 
 ######### Common Linker File Handling
 # This can be overriden from the apps
-
+global-linkerscript-y := build/toolchains/arm_gcc/arm-linux-gcc.lds
+local-linkerscript-y := build/toolchains/arm_gcc/rs485.lds
 
 # Toolchain specific global cflags-y
 global-cflags-y :=
@@ -44,7 +45,7 @@ tc-strip-opt := --strip-debug
 tc-lflags-y :=
 
 
-global-cflags-y += \
+#global-cflags-y += \
 		-g -Os \
 		-fdata-sections \
 		-ffunction-sections \
@@ -52,7 +53,12 @@ global-cflags-y += \
 		-MMD -Wall \
 		-fno-strict-aliasing \
 		-fno-common
-
+global-cflags-y += \
+		-g -Os \
+		-MMD -Wall
+		
+global-lflags-y := \
+		--no-gc-sections
 
 # cpp specific compiler and linker flags
 ifeq ($(CONFIG_ENABLE_CPP_SUPPORT),y)
@@ -94,12 +100,12 @@ endef
 endif
 
 
-#define b-cmd-axf
-#$($(1)-LD) -o $(2) $($(1)-objs-y) $($(1)-lflags-y) -Xlinker --start-group $($(1)-prebuilt-libs-y) $($(1)-libs-paths-y) $(global-prebuilt-libs-y) -Xlinker --end-group -T $($(1)-linkerscript-y) -Xlinker -M -Xlinker -Map -Xlinker $(2:%.axf=%.map) $(tc-lflags-y) $(global-cflags-y)
+#define b-cmd-bin
+#$($(1)-LD) -o $(2) $($(1)-objs-y) $($(1)-lflags-y) -Xlinker --start-group $($(1)-prebuilt-libs-y) $($(1)-libs-paths-y) $(global-prebuilt-libs-y) -Xlinker --end-group $($(1)-linkerscript-y) -Xlinker -M -Xlinker -Map -Xlinker $(2:%.axf=%.map) $(tc-lflags-y) $(global-cflags-y)
 #endef
 
 define b-cmd-bin
-$($(1)-LD) -o $(2) $($(1)-objs-y) $($(1)-lflags-y) $($(1)-prebuilt-libs-y) $($(1)-libs-paths-y) $(global-prebuilt-libs-y) $(global-cflags-y) -Wl,-Map,$(2).map
+$($(1)-LD) -o $(2) $($(1)-objs-y) $($(1)-lflags-y) $(global-lflags-y) -Wl,--start-group $($(1)-libs-paths-y) $(global-prebuilt-libs-y) -Wl,--end-group -T $(global-linkerscript-y) -T $(local-linkerscript-y) -Wl,-Map,$(2:%.bin=%.map)
 endef
 
 define b-cmd-archive

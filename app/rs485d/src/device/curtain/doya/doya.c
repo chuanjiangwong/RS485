@@ -38,6 +38,7 @@
 #include "adapter.h"
 #include "device.h"
 #include "protocol/general/general.h"
+#include "read_config.h"
 
 
 /**
@@ -767,6 +768,8 @@ int doya_send_package_handle(unsigned char* send_buffer,
 
 #endif
 
+
+#define BROAD_MASK  0x00
 int doya_send_package_handle(volatile void* arg)
 {
     mstp_port_handle_t          *handle = (mstp_port_handle_t*)arg;
@@ -793,9 +796,16 @@ int doya_send_package_handle(volatile void* arg)
     }
     else
     {
-	    package.addr_low = handle->address[0];
-	    package.addr_high = handle->address[1];
+	    package.addr_low = handle->address[1];
+	    package.addr_high = handle->address[0];
     }
+
+
+    /** note: change the address attri
+     *  date: Wed 12 Oct, 2016
+     * */
+    if(package.addr_low == BROAD_MASK)
+        handle->except_reply = false;
 
 	switch(handle->method)
 	{
@@ -905,6 +915,11 @@ int doya_recv_package_handle(volatile void* arg)
         return -EINVAL;
     }
 
+    if(handle->package_buffer_len > glb_config_general_work_package_mtu)
+    {
+    	return -EPERM;
+    }
+
     switch(handle->method)
     {
         case RS485_CURTAIN_OPEN:
@@ -912,7 +927,6 @@ int doya_recv_package_handle(volatile void* arg)
         case RS485_CURTAIN_SET_PERCENT:
             /**FIXME:because of the controler have need to access to the two dooya curtains
              * just have one address, so, have no chech the reply value.*/
-#ifdef DOYA_ONLY_ONE_ADDRESS
             modbus_crc16(crc, handle->package_buffer, handle->package_buffer_len - 2);
             if(crc[0] != handle->package_buffer[handle->package_buffer_len -2] ||
                     crc[1] != handle->package_buffer[handle->package_buffer_len -1])
@@ -920,10 +934,6 @@ int doya_recv_package_handle(volatile void* arg)
                 syslog_error("[dooya]:crc error");
                 return -EIO;
             }
-#else
-            /** sleep 300ms */
-            usleep(300000);
-#endif
             break;
         case RS485_CURTAIN_GET_DEVICE_INFO:
             if(handle->package_buffer_len != 7)
@@ -949,11 +959,8 @@ int doya_recv_package_handle(volatile void* arg)
         default:
             return -EPERM;
     }
-#ifdef DOYA_ONLY_ONE_ADDRESS
+
     return 0;
-#else
-    return -EIO;
-#endif
 }
 
 

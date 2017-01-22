@@ -11,7 +11,7 @@ include build/sdk_common.mk
 global-cflags-y +=
 
 ######### SDK Version
-SDK_VERSION_INTERNAL ?= 1.0.r4
+SDK_VERSION_INTERNAL ?= 1.0
 SDK_VERSION :=\"$(SDK_VERSION_INTERNAL)$(EXTRA_SDK_VERSION)\"
 global-cflags-y += -DSDK_VERSION=$(SDK_VERSION) -Isdk/include
 

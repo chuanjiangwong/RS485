@@ -32,6 +32,7 @@
 #include "device/airCondition/york/york.h"
 #include "device/airCondition/hitachi/vrv_manager.h"
 #include "device/airCondition/york/johnson_controls.h"
+#include "device/airCondition/mistsubishi/mac_ccs_01m.h"
 
 
 /* -----------------------------------------*/
@@ -182,6 +183,47 @@ static struct device_profile air_condition_hitachi_vrv_manager[] =
     {1,     RS485_AIR_GET_DEVICE_INFO,              hitachi_vrv_manager_get_device_info_send,       hitachi_vrv_manager_get_device_info_handle},
 };
 
+/** hitachi vrv manager air conditoner */
+static struct device_profile air_condition_mistsubishi_mac_ccs_01m[] =
+{
+    /* address len */ /* device method */ /* method send package */ /* method recv package */
+    {1,     RS485_AIR_SET_TEMP_18,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_19,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_20,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_21,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_22,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_23,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_24,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_25,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_26,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_27,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_28,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_29,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SET_TEMP_30,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+
+    {1,     RS485_AIR_SWING_AUTO,                   mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SWING_UP_DOWN,                mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SWING_LEFT_RIGHT,             mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_SWING_UP_DOWN_LEFT_RIGHT,     mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+
+    {1,     RS485_AIR_FAN_AUTO,    	                mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_FAN_HIGH,    	                mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_FAN_MIDDLE,                   mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_FAN_LOW,    	                mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+
+    {1,     RS485_AIR_MODE_FANING,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_MODE_HEATING,                 mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_MODE_COOLING,                 mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_MODE_DRYING,                  mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_MODE_AUTOING,                 mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+
+    {1,     RS485_AIR_OFF,    		                mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_ON,    		                mistsubishi_mac_ccs_01m_send_package_handle,        NULL},
+    {1,     RS485_AIR_GET_DEVICE_INFO,              mistsubishi_mac_ccs_01m_get_device_info_send,       mistsubishi_mac_ccs_01m_get_device_info_handle},
+};
+
+
+
 /** johnson controls air conditoner */
 static struct device_profile air_condition_johnson_controls[] =
 {
@@ -296,6 +338,9 @@ struct device_profile* get_support_device_profile(rs485_factory_name_enum name)
         case RS485_AIRCONDITION_MODBUS_YORK_JOHNSON_CONTROLS_BOX:
             return air_condition_johnson_controls;
 
+        case RS485_AIRCONDITION_MODBUS_MISTSUBISHI_MAC_CCS_01M:
+        	return air_condition_mistsubishi_mac_ccs_01m;
+
         default:
             return NULL;
     }
@@ -328,6 +373,9 @@ int get_support_device_profile_numbers(rs485_factory_name_enum name)
 
         case RS485_AIRCONDITION_MODBUS_YORK_JOHNSON_CONTROLS_BOX:
             return sizeof(air_condition_johnson_controls)/sizeof(struct device_profile);
+
+        case RS485_AIRCONDITION_MODBUS_MISTSUBISHI_MAC_CCS_01M:
+        	return sizeof(air_condition_mistsubishi_mac_ccs_01m)/sizeof(struct device_profile);
 
         default:
             return 0;

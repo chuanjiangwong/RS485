@@ -131,6 +131,8 @@ static uint16_t indoor_status[64][2] =
 };
 
 
+
+#define SEND_PACKAGE_LENGTH     (6)
 int johnson_controls_vrv_send_package_handle(volatile void* arg)
 {
     modbus_port_handle_t                *handle = (modbus_port_handle_t*)arg;
@@ -144,41 +146,40 @@ int johnson_controls_vrv_send_package_handle(volatile void* arg)
     handle->code = MODBUS_FUNCTION_CODE_WRITE_MULTIPLE_REGISTERS;
 
     /* set the address registers */
-    if(handle->device_addr >= 64)
+    if(handle->device_addr > 64 || (handle->device_addr == 0))
     {
         syslog_warning("[hitachi]: The device addr:%u inval, except less than 127", handle->device_addr);
         return -EINVAL;
     }
-    else if(48 <= handle->device_addr && handle->device_addr < 64)
+    else
     {
-        *(value) <<= handle->device_addr % 16;
-        *(value + 1) = 0x00;
-        *(value + 2) = 0x00;
-        *(value + 3) = 0x00;
+        /* bit0 is address 1 */
+        handle->device_addr -= 1;
+    }
+
+    if(handle->buffer_len < (SEND_PACKAGE_LENGTH * 2))
+        return -ENOMEM;
+
+    /* bzero the buffer */
+    memset(value, 0x00, SEND_PACKAGE_LENGTH * 2 );
+    if(48 <= handle->device_addr && handle->device_addr < 64)
+    {
+        *(value) |= 0x1 << (handle->device_addr % 16);
     }
     else if(32 <= handle->device_addr && handle->device_addr < 48)
     {
-        *(value) = 0x00;
-        *(value + 1) <<= handle->device_addr % 16;
-        *(value + 2) = 0x00;
-        *(value + 3) = 0x00;
+        *(value + 1) |= 0x1 << (handle->device_addr % 16);
     }
     else if(16 <= handle->device_addr && handle->device_addr < 32)
     {
-        *(value) = 0x00;
-        *(value + 1) = 0x00;
-        *(value + 2) <<= handle->device_addr % 16;
-        *(value + 3) = 0x00;
+        *(value + 2) |= 0x1 << (handle->device_addr % 16);
     }
     else
     {
-        *(value) = 0x00;
-        *(value + 1) = 0x00;
-        *(value + 2) = 0x00;
-        *(value + 3) <<= handle->device_addr % 16;
+        *(value + 3) |= 0x1 << (handle->device_addr % 16);
     }
 
-    /* FIXME: should I hold register start + 1? */
+
     handle->register_addr = HOLD_REGISTER_START;
     switch(handle->method)
     {
@@ -195,72 +196,93 @@ int johnson_controls_vrv_send_package_handle(volatile void* arg)
         case RS485_AIR_SET_TEMP_29:
         case RS485_AIR_SET_TEMP_30:
             *(value + 4) = indoor_status[handle->device_addr][0];
+            /* low 8 bit, mask: 1111 1111, 0000 0000 */
+            indoor_status[handle->device_addr][1] &= 0xff00;
             indoor_status[handle->device_addr][1] |= handle->method;
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
+
         case RS485_AIR_SWING_AUTO:
         case RS485_AIR_SWING_UP_DOWN:
         case RS485_AIR_SWING_LEFT_RIGHT:
+            /* low 8 bit, mask: 1111 1111, 1111, 1101 */
+            indoor_status[handle->device_addr][0] &= 0xfffd;
             indoor_status[handle->device_addr][0] |= SET_SWING_ON;
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_SWING_UP_DOWN_LEFT_RIGHT:
+            indoor_status[handle->device_addr][0] &= 0xfffd;
             indoor_status[handle->device_addr][0] |= SET_SWING_OFF;
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
+
         case RS485_AIR_FAN_AUTO:
             *(value + 4) = indoor_status[handle->device_addr][0];
+            /* high 8 bit, mask: 0000 0000, 1111 1111 */
+            indoor_status[handle->device_addr][1] &= 0x00ff;
             indoor_status[handle->device_addr][1] |= (SET_FAN_AUTO << 8);
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_FAN_HIGH:
             *(value + 4) = indoor_status[handle->device_addr][0];
+            indoor_status[handle->device_addr][1] &= 0x00ff;
             indoor_status[handle->device_addr][1] |= (SET_FAN_HIGH << 8);
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_FAN_MIDDLE:
             *(value + 4) = indoor_status[handle->device_addr][0];
+            indoor_status[handle->device_addr][1] &= 0x00ff;
             indoor_status[handle->device_addr][1] |= (SET_FAN_MIDDLE << 8);
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_FAN_LOW:
             *(value + 4) = indoor_status[handle->device_addr][0];
+            indoor_status[handle->device_addr][1] &= 0x00ff;
             indoor_status[handle->device_addr][1] |= (SET_FAN_LOW << 8);
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
+
         case RS485_AIR_MODE_FANING:
+            indoor_status[handle->device_addr][0] &= 0x00ff;
             indoor_status[handle->device_addr][0] |= (SET_MODE_FANING << 8);
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_MODE_HEATING:
+            indoor_status[handle->device_addr][0] &= 0x00ff;
             indoor_status[handle->device_addr][0] |= (SET_MODE_HEATING << 8);
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_MODE_COOLING:
+            indoor_status[handle->device_addr][0] &= 0x00ff;
             indoor_status[handle->device_addr][0] |= (SET_MODE_COOLING << 8);
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_MODE_DRYING:
+            indoor_status[handle->device_addr][0] &= 0x00ff;
             indoor_status[handle->device_addr][0] |= (SET_MODE_DRYING << 8);
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_MODE_AUTOING:
+            indoor_status[handle->device_addr][0] &= 0x00ff;
             indoor_status[handle->device_addr][0] |= (SET_MODE_DRYING << 8);
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
+
         case RS485_AIR_OFF:
+            indoor_status[handle->device_addr][0] &= 0x00ff;
             indoor_status[handle->device_addr][0] |= (SET_POWER_OFF << 8);
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
             break;
         case RS485_AIR_ON:
+            indoor_status[handle->device_addr][0] &= 0x00ff;
             indoor_status[handle->device_addr][0] |= (SET_POWER_ON << 8);
             *(value + 4) = indoor_status[handle->device_addr][0];
             *(value + 5) = indoor_status[handle->device_addr][1];
@@ -284,6 +306,8 @@ int johnson_controls_vrv_get_device_info_send(volatile void* arg)
     if(handle == NULL)
         return -EINVAL;
 
+    handle->code = MODBUS_FUNCTION_CODE_DO_NOTHING;
+#if 0
     handle->code = MODBUS_FUNCTION_CODE_READ_MULTIPLE_REGISTERS;
 
     /* The every air condition have a 6 hold register */
@@ -291,6 +315,7 @@ int johnson_controls_vrv_get_device_info_send(volatile void* arg)
         AIR_CONDITION_DATA_REGISTER_START;
 
     handle->device_addr = JOHNSON_CONTROLS_VRV_DEFAULT_ADDRESS;
+#endif
 
     return AIR_CONDITION_INFO_REGISTER_LENGTH;
 }
