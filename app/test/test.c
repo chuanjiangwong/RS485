@@ -72,12 +72,12 @@ int main(void)
        exit(1);
    }
 
-   printf("glb_task->id: %08x\n", glb_task[0].id);
+   printf("glb_task->id: %p\n", glb_task[0].id);
 
    while(1)
    {
-       sleep(1);
-       printf("sleep %d\n", count++);
+        sleep(1);
+        printf("sleep %d\n", count++);
 
        if(count % 10 == 0)
        {

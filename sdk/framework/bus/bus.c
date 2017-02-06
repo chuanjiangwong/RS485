@@ -35,20 +35,9 @@
 
 
 
-static struct bus_type *bus_get(struct bus_type *bus)
-{
-	return bus;
-}
-
-static void bus_put(struct bus_type *bus)
-{
-
-}
-
-
 int bus_add_device(struct device *dev)
 {
-	struct bus_type *bus = bus_get(dev->bus);
+	struct bus_type *bus = dev->bus;
 
 	if (bus)
 	{
@@ -121,7 +110,7 @@ int bus_for_each_dev(struct bus_type *bus, struct device *start,
 }
 
 
-struct device *bus_find_device(struct bus_type *bus, struct device *start,
+static struct device *bus_find_device(struct bus_type *bus, struct device *start,
                 void *data, int (*match)(struct device *dev, void *data))
 {
 	struct wlist_iter i;
@@ -133,7 +122,7 @@ struct device *bus_find_device(struct bus_type *bus, struct device *start,
 	wlist_iter_init_node(&bus->p->wlist_devices, &i,
 	                (start ? &start->wnode_bus : NULL));
 	while ((dev = next_device(&i)))
-		if (match(dev, data) && get_device(dev))
+		if (match(dev, data))
 			break;
 	wlist_iter_exit(&i);
 	return dev;
@@ -170,7 +159,7 @@ void bus_attach_device(struct device *dev)
 			wlist_add_tail(&dev->wnode_bus, &bus->p->wlist_devices);
 		else
 		{
-            wlog_i("bus attach device fail: %d", ret);
+            wlog_e("bus attach device fail: %d", ret);
 		}
 	}
 }
@@ -186,7 +175,6 @@ void bus_remove_device(struct device *dev)
 		wlog_i("bus: '%s': remove device %s",
 						dev->bus->name, dev->bus_id);
 		device_release_driver(dev);
-		bus_put(dev->bus);
 	}
 }
 
@@ -197,7 +185,7 @@ int bus_add_driver(struct device_driver *drv)
 	struct driver_private *priv;
 	int error = 0;
 
-	bus = bus_get(drv->bus);
+	bus = drv->bus;
 	if (!bus)
 		return -EINVAL;
 
@@ -228,7 +216,6 @@ int bus_add_driver(struct device_driver *drv)
 out_unregister:
     free(priv);
 out_put_bus:
-    bus_put(bus);
     return error;
 }
 
@@ -242,7 +229,6 @@ void bus_remove_driver(struct device_driver *drv)
 	wlog_i("bus: '%s': remove driver %s", drv->bus->name, drv->name);
 	driver_detach(drv);
 	free(drv->p);
-	bus_put(drv->bus);
 }
 
 
@@ -271,6 +257,7 @@ int device_reprobe(struct device *dev)
 	{
 		device_release_driver(dev);
 	}
+
 	return bus_rescan_devices_helper(dev, NULL);
 }
 
@@ -279,17 +266,11 @@ int device_reprobe(struct device *dev)
 
 static void wlist_devices_get(struct wlist_node *n)
 {
-	struct device *dev = container_of(n, struct device, wnode_bus);
-
-	get_device(dev);
 }
 
 
 static void wlist_devices_put(struct wlist_node *n)
 {
-	struct device *dev = container_of(n, struct device, wnode_bus);
-
-	put_device(dev);
 }
 
 

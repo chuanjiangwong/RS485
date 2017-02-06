@@ -55,22 +55,13 @@ inline bool device_is_registered(struct device *dev)
 }
 
 
-
-const char *dev_driver_string(const struct device *dev)
-{
-	return dev->driver ? dev->driver->name :
-			(dev->bus ? dev->bus->name : "");
-
-}
-
-
-void device_initialize(struct device *dev)
+static void device_initialize(struct device *dev)
 {
 
 }
 
 
-int dev_set_name(struct device *dev, const char *fmt, ...)
+static int dev_set_name(struct device *dev, const char *fmt, ...)
 {
 	va_list vargs;
 
@@ -81,14 +72,13 @@ int dev_set_name(struct device *dev, const char *fmt, ...)
 }
 
 
-int device_add(struct device *dev)
+static int device_add(struct device *dev)
 {
 	int error = 0;
 
     if(dev == NULL)
         return -EINVAL;
 
-	dev = get_device(dev);
 	if (!dev)
 		goto done;
 
@@ -108,7 +98,6 @@ int device_add(struct device *dev)
 
 
 done:
-	put_device(dev);
 	return error;
 }
 
@@ -120,18 +109,8 @@ int device_register(struct device *dev)
 }
 
 
-struct device *get_device(struct device *dev)
-{
-    return dev;
-}
 
-
-void put_device(struct device *dev)
-{
-}
-
-
-void device_del(struct device *dev)
+static void device_del(struct device *dev)
 {
 	bus_remove_device(dev);
 
@@ -145,69 +124,9 @@ void device_unregister(struct device *dev)
 {
 	wlog_i("device: '%s' unregister ", dev->bus_id);
 	device_del(dev);
-	put_device(dev);
 }
 
 
-
-static void device_create_release(struct device *dev)
-{
-	wlog_i("device: '%s': release", dev->bus_id);
-	free(dev);
-}
-
-
-struct device *device_create_vargs(void *drvdata,
-				   const char *fmt,
-				   va_list args)
-{
-	struct device *dev = NULL;
-	int retval = -ENODEV;
-
-	dev = malloc(sizeof(*dev));
-	if (!dev) {
-		retval = -ENOMEM;
-		goto error;
-	}
-    memset(dev, 0, sizeof(*dev));
-
-	dev->release = device_create_release;
-	dev_set_drvdata(dev, drvdata);
-
-	vsnprintf(dev->bus_id, BUS_ID_SIZE, fmt, args);
-	retval = device_register(dev);
-	if (retval)
-		goto device_register_fail;
-
-	return dev;
-
-device_register_fail:
-	free(dev);
-error:
-	return  NULL;
-}
-
-
-struct device *device_create(void *drvdata, const char *fmt, ...)
-{
-	va_list vargs;
-	struct device *dev;
-
-	va_start(vargs, fmt);
-	dev = device_create_vargs(drvdata, fmt, vargs);
-	va_end(vargs);
-	return dev;
-}
-
-
-void device_destroy(struct device *dev)
-{
-	if (dev)
-	{
-		put_device(dev);
-		device_unregister(dev);
-	}
-}
 
 
 
