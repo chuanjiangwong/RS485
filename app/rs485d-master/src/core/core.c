@@ -352,12 +352,12 @@ int rs485_device_create(struct rs485_device_info const *info, int *id)
     bus = rs485_bus_match_by_name(info->match_bus);
     if(!bus)
     {
-        wlog_d("bus: '%s' have not exist", info->match_bus);
+        wlog_e("bus: '%s' have not exist", info->match_bus);
         goto error;
     }
 
     /* step2. alloc device */
-    device = calloc(1, sizeof(struct rs485_bus_type));
+    device = calloc(1, sizeof(struct rs485_device));
     if(!device)
     {
         retval = -ENOMEM;
@@ -369,6 +369,7 @@ int rs485_device_create(struct rs485_device_info const *info, int *id)
     if(*id < 0)
     {
         retval = -ENODEV;
+        wlog_d("id is full");
         goto get_device_id_fail;
     }
 

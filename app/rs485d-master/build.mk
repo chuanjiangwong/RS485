@@ -38,6 +38,9 @@ $(prj_name)-objs-y += \
 		src/protocol/custom/custom.c \
 		src/protocol/custom/interface.c
 
+#client
+$(prj_name)-objs-y += \
+		src/client/client.c
 
 #device curtain
 $(prj_name)-objs-y += \

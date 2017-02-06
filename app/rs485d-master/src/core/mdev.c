@@ -59,7 +59,7 @@ int get_device_id(struct rs485_device* device)
 {
     int id = find_next_device_id();
 
-    if(device)
+    if(!device)
         return -EPERM;
 
     /* set */

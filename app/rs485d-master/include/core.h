@@ -102,7 +102,7 @@ struct rs485_bus_type
 
 struct rs485_device_info
 {
-    const char*                 match_bus;
+    char                        match_bus[RS485_NAME_SIZE];
     const char*                 match_driver;
     unsigned char               mac[4];
 };
@@ -183,17 +183,16 @@ extern int rs485_bus_register(struct rs485_bus_type* bus);
 extern void rs485_bus_unregister(struct rs485_bus_type* bus);
 
 
-/* for rs485 device function */
-extern int rs485_device_register(struct rs485_device* dev);
-extern void rs485_device_unregister(struct rs485_device* dev);
-
-extern inline int set_device_data(struct rs485_device* dev, void* data);
-extern inline void* get_device_data(struct rs485_device const * dev);
-
-
 /* for rs485 driver device function */
 extern int rs485_driver_register(struct rs485_driver *driver, const char* bus_name);
 extern void rs485_driver_unregister(struct rs485_driver* driver);
+
+
+/* for rs485 device function */
+extern int rs485_device_create(struct rs485_device_info const *info, int *id);
+extern void rs485_device_destroy(struct rs485_device *device);
+extern inline int set_device_data(struct rs485_device* dev, void* data);
+extern inline void* get_device_data(struct rs485_device const * dev);
 
 
 /* The device id map */

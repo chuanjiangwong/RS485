@@ -216,12 +216,9 @@ void driver_detach(struct device_driver *drv)
 			break;
 		dev = list_entry(drv->p->wlist_devices.w_list.prev, struct device,
 		                wnode_driver.n_node);
-		get_device(dev);
 
 		if (dev->driver == drv)
 			__device_release_driver(dev);
-
-		put_device(dev);
 	}
 }
 
@@ -266,7 +263,7 @@ struct device *driver_find_device(struct device_driver *drv,
 	wlist_iter_init_node(&drv->p->wlist_devices, &i,
 	                (start ? &start->wnode_driver : NULL));
 	while ((dev = next_device(&i)))
-		if (match(dev, data) && get_device(dev))
+		if (match(dev, data))
 			break;
 	wlist_iter_exit(&i);
 	return dev;
@@ -298,7 +295,8 @@ int driver_register(struct device_driver *drv)
 
 	if(driver_find(drv->name, drv->bus))
 	{
-		wlog_e("Driver '%s' is already registered,  aborting...", drv->name);
+		wlog_w("Driver '%s' is already registered to bus: '%s',  aborting...",
+                drv->name, drv->bus->name);
 		return -EEXIST;
 	}
 
