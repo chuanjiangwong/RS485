@@ -10,13 +10,7 @@ CROSS_COMPILE ?= arm-linux-gnueabi-
 
 
 -include .config
-include build/hapsdk.mk
-
-
-
-###################################
-# SDK modules
-
+include build/sdk.mk
 
 
 
@@ -65,8 +59,9 @@ all: post-build-1
 
 post-build-1: do_the_build
 #	$(AT)echo " [compiler] $(CC)--> $(compiler-version)"
-	
+
 do_the_build: pre-build-1
+	$(AT)echo " [compiler] $(CC)--> $(compiler-version)"
 	$(AT)$(MAKE) $(silent) build
 
 # The entire build system is dependency driven. By default, build
@@ -77,7 +72,7 @@ build: $(b-exec-apps-y)
 debug release:
 	$(error "This target is no longer supported. Please pass BUILD_MODE option as: make BUILD_MODE=$@")
 
-clean: 
+clean:
 
 ###################################
 help: build-help
