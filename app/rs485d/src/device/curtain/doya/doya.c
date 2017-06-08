@@ -38,7 +38,6 @@
 #include "adapter.h"
 #include "device.h"
 #include "protocol/general/general.h"
-#include "read_config.h"
 
 
 /**
@@ -913,11 +912,6 @@ int doya_recv_package_handle(volatile void* arg)
     if(handle->package_buffer == NULL)
     {
         return -EINVAL;
-    }
-
-    if(handle->package_buffer_len > glb_config_general_work_package_mtu)
-    {
-    	return -EPERM;
     }
 
     switch(handle->method)

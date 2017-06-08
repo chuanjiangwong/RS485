@@ -38,7 +38,6 @@ PROJECT_VERSION := \"$(PROJECT_VERSION)\"
 ###############################################################
 #project srouce file
 $(prj_name)-objs-y := \
-	src/rs485_api.c \
 	src/main.c
 
 ###############################################################

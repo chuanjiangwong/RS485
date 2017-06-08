@@ -57,7 +57,7 @@ global-cflags-y += \
 		-g -Os \
 		-MMD -Wall
 		
-global-lflags-y := \
+#global-lflags-y := \
 		--no-gc-sections
 
 # cpp specific compiler and linker flags

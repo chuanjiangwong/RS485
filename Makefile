@@ -6,7 +6,7 @@
 BUILD_MODE ?= debug
 
 # The gcc
-CROSS_COMPILE ?= arm-vfp-linux-gnu-
+CROSS_COMPILE ?= arm-linux-gnueabi-
 
 
 -include .config

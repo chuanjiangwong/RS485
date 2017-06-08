@@ -1,9 +1,14 @@
-#Project RS485
+# Introduction
+This is a RS485 daemon on ARM Linux, may be support BACnet MODBUS protocol
 
-1) RS485 daemon project
+# How to use
 
-	1. make menuconfig
-		chose rs485d enable
-	2. make all
-		build exec on "./bin" dirent
+## chose application
+    `$ make menuconfig`
+
+## build application
+    `$ make all`
+
+## clean application
+    `$ make clean`
 
