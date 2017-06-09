@@ -42,6 +42,7 @@ endef
 define defconfig_cmd
   $(if $(wildcard $(1)),$(eval conf-file:=$(call b-abspath,$(1))),$(eval conf-file:=$(b-sdkconfig-dir-y)/$(1)))
   $(AT)$(t_kconf) -D $(conf-file) $(b-sdkconfig-dir-y)/Kconfig
+  echo "$(AT)$(t_kconf) -D $(conf-file) $(b-sdkconfig-dir-y)/Kconfig"
   @echo "Configured using $(conf-file)"
   $(AT)$(t_printf) "b-conf-name := $(notdir $(1))" > .b_config_name
   $(eval b-conf-name := $(1))
@@ -117,15 +118,16 @@ pre-build-1: .config
 
 # Use recursive make for the tools for now
 $(t_kconf):
-	$(AT)$(MAKE) -s -C sdk/tools/src/host-tools/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext)
-	$(AT)$(t_cp) -a sdk/tools/src/host-tools/kconfig/$(notdir $@) $@
-	$(AT)$(MAKE) -s -C sdk/tools/src/host-tools/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) clean
+	$(AT)$(t_mkdir) -p $(@D)
+	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext)
+	$(AT)$(t_cp) -a sdk/config/kconfig/$(notdir $@) $@
+	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) clean
 
 $(t_mconf):
-	$(AT)$(MAKE) -s -C sdk/tools/src/host-tools/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) all
-	$(AT)$(t_cp) -a sdk/tools/src/host-tools/kconfig/$(notdir $@) $@
-	$(AT)$(t_cp) -a sdk/tools/src/host-tools/kconfig/lxdialog/lxdialog $(dir $@)
-	$(AT)$(MAKE) -s -C sdk/tools/src/host-tools/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) clean
+	$(AT)$(t_mkdir) -p $(@D)
+	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) all
+	$(AT)$(t_cp) -a sdk/config/kconfig/* $(@D)
+	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) clean
 
 
 

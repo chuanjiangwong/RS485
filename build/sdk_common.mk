@@ -45,8 +45,10 @@ t_printf ?= $(shell $(t_which) printf | tail -1)
 t_python ?= $(shell $(t_which) python | tail -1)
 
 ##################################
-t_kconf  := sdk/tools/bin/$(os_dir)/conf$(file_ext)
-t_mconf  := sdk/tools/bin/$(os_dir)/mconf$(file_ext)
+#t_kconf  := sdk/tools/bin/$(os_dir)/conf$(file_ext)
+#t_mconf  := sdk/tools/bin/$(os_dir)/mconf$(file_ext)
 
+t_kconf  := bin/config/conf$(file_ext)
+t_mconf  := bin/config/mconf$(file_ext)
 
 

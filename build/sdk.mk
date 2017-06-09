@@ -16,7 +16,7 @@ SDK_VERSION :=\"$(SDK_VERSION_INTERNAL)$(EXTRA_SDK_VERSION)\"
 global-cflags-y += -DSDK_VERSION=$(SDK_VERSION) -Isdk/include
 
 # Default defconfig
-b-defconfig-y := defconfig
+b-defconfig-y := kconfig
 # Path for searching SDK configuration files
 b-sdkconfig-dir-y := sdk/config
 

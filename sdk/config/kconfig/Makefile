@@ -1,5 +1,3 @@
-# Copyright (C) 2008-2015, Marvell International Ltd.
-# All Rights Reserved.
 
 ifneq ($(NOISY),1)
 	AT := @
@@ -12,7 +10,7 @@ OS := $(shell uname)
 
 ifneq ($(OS), Darwin)
 	LDFLAGS := -static -s
-	libncurses := -lncursesw
+	libncurses := -lncurses
 endif
 
 export libncurses
