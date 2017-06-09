@@ -120,13 +120,14 @@ pre-build-1: .config
 $(t_kconf):
 	$(AT)$(t_mkdir) -p $(@D)
 	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext)
-	$(AT)$(t_cp) -a sdk/config/kconfig/$(notdir $@) $@
+	$(AT)$(t_cp) -a sdk/config/kconfig/$(@F) $(@D)
 	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) clean
 
 $(t_mconf):
 	$(AT)$(t_mkdir) -p $(@D)
 	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) all
-	$(AT)$(t_cp) -a sdk/config/kconfig/* $(@D)
+	$(AT)$(t_cp) -a sdk/config/kconfig/$(@F) $(@D)
+	$(AT)$(t_cp) -a sdk/config/kconfig/lxdialog/lxdialog $(@D)
 	$(AT)$(MAKE) -s -C sdk/config/kconfig CC=$(HOST_CC) TARGET=$(notdir $@) file_ext=$(file_ext) clean
 
 

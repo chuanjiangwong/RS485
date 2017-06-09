@@ -327,7 +327,7 @@ static void cprint_init(void)
 	memset(args, 0, sizeof(args));
 	indent = 0;
 	child_count = 0;
-	cprint("./sdk/tools/bin/%s/lxdialog", uts.sysname);
+	cprint("./bin/config/lxdialog");
 	cprint("--backtitle");
 	cprint(menu_backtitle);
 }

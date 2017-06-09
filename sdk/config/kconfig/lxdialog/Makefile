@@ -1,3 +1,8 @@
+# Copyright (C) 2008-2015, Marvell International Ltd.
+# All Rights Reserved.
+
+# Makefile to build lxdialog package
+#
 
 ifneq ($(NOISY),1)
 	AT := @
@@ -14,7 +19,7 @@ CFLAGS += -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>" -DLOCALE
 all: lxdialog
 
 lxdialog: checklist.o menubox.o textbox.o yesno.o inputbox.o \
-		 util.o
+		 util.o lxdialog.o msgbox.o
 	$(AT)$(CC) -o $@ $^ $(libncurses)
 
 clean:
