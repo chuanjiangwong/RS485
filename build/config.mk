@@ -42,7 +42,6 @@ endef
 define defconfig_cmd
   $(if $(wildcard $(1)),$(eval conf-file:=$(call b-abspath,$(1))),$(eval conf-file:=$(b-sdkconfig-dir-y)/$(1)))
   $(AT)$(t_kconf) -D $(conf-file) $(b-sdkconfig-dir-y)/Kconfig
-  echo "$(AT)$(t_kconf) -D $(conf-file) $(b-sdkconfig-dir-y)/Kconfig"
   @echo "Configured using $(conf-file)"
   $(AT)$(t_printf) "b-conf-name := $(notdir $(1))" > .b_config_name
   $(eval b-conf-name := $(1))
