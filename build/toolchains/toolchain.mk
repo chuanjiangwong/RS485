@@ -10,7 +10,7 @@
 
 TOOLCHAIN ?= arm_gcc
 toolchain := $(TOOLCHAIN)
-b-supported-toolchain-y := arm_gcc iar
+b-supported-toolchain-y := arm_gcc
 
 define toolchain_error_log
 

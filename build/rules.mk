@@ -227,7 +227,7 @@ all-libs: $(foreach l,$(b-libs-y),$(l).a)
 $(foreach d,$(sort $(foreach p,$(b-exec-y),$($(p)-output-dir-y))),$(eval $(call create_dir,$(d))))
 
 define b-gen-bin
-  @echo " [bin] $(call b-abspath,$(2))"
+  @echo "\033[0;31;1m [bin] $(call b-abspath,$(2)) \033[0m"
   $(AT)$(call b-cmd-bin,$(1),$(2))
   @echo " [map] $(call b-abspath,$(2:%.bin=%.map))"
   $(call cmd_save,$(call b-cmd-bin,$(1),$(2)))

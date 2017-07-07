@@ -10,10 +10,10 @@ config ENABLE_APP_RS485D
     help
         compile rs485d
 
-menu "rs485d"
-depends on ENABLE_APP_RS485D
-source app/rs485d/Kconfig
-endmenu
+#menu "rs485d"
+#depends on ENABLE_APP_RS485D
+#source app/rs485d/Kconfig
+#endmenu
 
 
 config  ENABLE_APP_RS485C
@@ -27,17 +27,5 @@ source app/rs485c/Kconfig
 endmenu
 
 
-
-config ENABLE_APP_RS485D_MASTER
-    bool "Enable rs485d-master"
-    help
-        compile rs485d-master app
-
-
-
-config ENABLE_APP_TEST
-    bool "Enable test"
-    help
-        compile test app
 
 

@@ -130,8 +130,6 @@ void* general_work_thread_function(void* arg)
             /* have except reply */
             if(handle->except_reply)
             {
-                handle->package_buffer = package_buffer;
-                handle->package_buffer_len = glb_config_general_work_package_mtu;
                 error = rs485_recv_handle_frame(handle);
                 if(error)
                 {
